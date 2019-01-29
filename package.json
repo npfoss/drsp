@@ -1,0 +1,26 @@
+{
+  "name": "ddocs",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "http-server -c-1 -p 12345 public",
+    "compile": "browserify src/app.js -o public/js/app.js -d"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@nodeutils/defaults-deep": "^1.1.0",
+    "browserify": "^16.2.3",
+    "delta-crdts": "^0.10.1",
+    "delta-crdts-msgpack-codec": "^0.2.0",
+    "http-server": "^0.11.1",
+    "ipfs": "^0.34.4",
+    "ipfs-pubsub-room": "^1.4.1",
+    "jquery": "^3.3.1",
+    "libp2p": "^0.24.4",
+    "libp2p-mplex": "^0.8.4",
+    "libp2p-spdy": "^0.13.1",
+    "libp2p-webrtc-star": "^0.15.8"
+  }
+}
