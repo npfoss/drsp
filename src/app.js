@@ -25,14 +25,14 @@ ipfs.once('ready', () => ipfs.id((err, info) => {
   if (err) { throw err }
   console.log('IPFS node ready with address ' + info.id)
 
-  const CounterType = CRDT('gcounter')
-  const num = CounterType(info.id)
+  const RegType = CRDT('lwwreg')
+  const val = RegType(info.id)
 
   const room = Room(ipfs, 'room-name')
 
   room.on('peer joined', (peer) => {
     console.log('Peer joined the room', peer)
-    const rawCRDT = codec.encode(num.state())
+    const rawCRDT = codec.encode(val.state())
     room.sendTo(peer, rawCRDT)
     console.log('Sent current state!')
   })
@@ -46,9 +46,9 @@ ipfs.once('ready', () => ipfs.id((err, info) => {
     console.log('Now connected!')
   })
 
-  $('#btn').click(() => {
-    const delta = num.inc()
-    $('#num').text(num.value())
+  $('#btn').click((e) => {
+    const delta = val.write((new Date).getTime(), (val.value() == null) ? 1 : (1 - val.value()))
+    $('#val').text(val.value())
     const rawDelta = codec.encode(delta)
     room.broadcast(rawDelta)
     console.log('Sent delta!')
@@ -57,8 +57,8 @@ ipfs.once('ready', () => ipfs.id((err, info) => {
   room.on('message', (message) => {
     console.log('Received message from ' + message.from + '!')
     delta = codec.decode(message.data)
-    num.apply(delta)
-    $('#num').text(num.value())
+    val.apply(delta)
+    $('#val').text(val.value())
     console.log('Processed message!')
   })
 }))
