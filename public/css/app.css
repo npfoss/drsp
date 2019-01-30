@@ -31,3 +31,12 @@ button:focus {
 .player button {
     padding: 0px;
 }
+
+.peer {
+    padding: 3px;
+    background-color: red;
+}
+
+.peer button {
+    padding: 0px;
+}

@@ -32,17 +32,19 @@ const sendPos = function(room, pos) {
   room.broadcast(rawDelta)
 }
 
-const n = 20;
+const n = 10;
 
 var valarr = [];
 
 var charPos = [0,0];
 
+var peers = {};
+
 // IPFS node is ready, so we can start using ipfs-pubsub-room
 ipfs.once('ready', () => ipfs.id((err, info) => {
   if (err) { throw err }
   console.log('IPFS node ready with address ' + info.id)
-  const room = Room(ipfs, 'decent-2')
+  const room = Room(ipfs, 'pikachu')
 
   const RegType = CRDT('lwwreg')
 
@@ -61,6 +63,10 @@ ipfs.once('ready', () => ipfs.id((err, info) => {
 
   room.on('peer joined', (peer) => {
     console.log('Peer joined the room', peer)
+    // update pos
+    peers[peer] = [0,0]
+    $('#r' + peers[peer][0] + ' #c' + peers[peer][1] + '').addClass('peer')
+    //send room
     for(var i=0; i<n; i++) {
       for(var j=0; j<n; j++) {
         const rawCRDT = codec.encode({type: 'delta', r: i, c: j, delta:valarr[i][j].state()})
@@ -69,10 +75,15 @@ ipfs.once('ready', () => ipfs.id((err, info) => {
       	}, (n*i+j) * 25)
       }
     }
+    // send pos
+    const rawDelta = codec.encode({type: 'pos', r: charPos[0], c: charPos[1]})
+    room.sendTo(peer, rawDelta)
   })
 
   room.on('peer left', (peer) => {
     console.log('Peer left...', peer)
+    $('#r' + peers[peer][0] + ' #c' + peers[peer][1] + '').removeClass('peer')
+    delete peers[peer];
   })
 
   // now started to listen to room
@@ -93,6 +104,10 @@ ipfs.once('ready', () => ipfs.id((err, info) => {
 
   room.on('message', (message) => {
     console.log(message)
+    if (message.from === info.id){
+      // it's from us. ignore it
+      return;
+    }
     var mess = codec.decode(message.data)
     if (mess['type'] === 'delta'){
       r = mess['r']
@@ -102,6 +117,9 @@ ipfs.once('ready', () => ipfs.id((err, info) => {
       update_btn(r, c, valarr[r][c])
     } else if (mess['type'] === 'pos') {
       console.log(mess)
+      $('#r' + peers[message.from][0] + ' #c' + peers[message.from][1] + '').removeClass('peer')
+      peers[message.from] = [mess['r'], mess['c']]
+      $('#r' + peers[message.from][0] + ' #c' + peers[message.from][1] + '').addClass('peer')
     }
   })
 
