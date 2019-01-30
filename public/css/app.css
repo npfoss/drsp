@@ -15,10 +15,19 @@ button {
     display: block;
     height: 100%;
     width: 100%;
-    padding: 0;
+    padding: 3px;
     border: none;
 }
 
 button:focus {
     outline: 0;
+}
+
+.player {
+    padding: 3px;
+    background-color: green;
+}
+
+.player button {
+    padding: 0px;
 }

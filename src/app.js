@@ -30,6 +30,8 @@ const n = 8;
 
 var valarr = [];
 
+var charPos = [0,0];
+
 // IPFS node is ready, so we can start using ipfs-pubsub-room
 ipfs.once('ready', () => ipfs.id((err, info) => {
   if (err) { throw err }
@@ -47,6 +49,7 @@ ipfs.once('ready', () => ipfs.id((err, info) => {
     }
   }
 
+  $('#r' + charPos[0] + ' #c' + charPos[1] + '').addClass('player')
 
   const room = Room(ipfs, 'room-name')
 
@@ -88,6 +91,20 @@ ipfs.once('ready', () => ipfs.id((err, info) => {
     valarr[r][c].apply(delta)
     update_btn(r, c, valarr[r][c])
   })
+
+  document.getElementById("body").onkeypress = function(e) {
+    $('#r' + charPos[0] + ' #c' + charPos[1] + '').removeClass('player')
+    if (e['key'] == 'w'){
+      charPos[0] = Math.max(0, charPos[0] - 1);
+    } else if (e['key'] == 's'){
+      charPos[0] = Math.min(n-1, charPos[0] + 1);
+    } else if (e['key'] == 'a'){
+      charPos[1] = Math.max(0, charPos[1] - 1);
+    } else if (e['key'] == 'd'){
+      charPos[1] = Math.min(n-1, charPos[1] + 1);
+    }
+    $('#r' + charPos[0] + ' #c' + charPos[1] + '').addClass('player')
+  }
 }))
 
 function repo() {
