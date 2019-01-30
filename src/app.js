@@ -26,6 +26,11 @@ const update_btn = function(r, c, valreg) {
   $('#r' + r + ' #c' + c + ' button').css('background-color', (valreg.value() === 1) ? 'black' : 'white')
 }
 
+const sendPos = function(room, pos) {
+  const rawDelta = codec.encode({type: 'pos', r: pos[0], c: pos[1]})
+  room.broadcast(rawDelta)
+}
+
 const n = 8;
 
 var valarr = [];
@@ -36,6 +41,7 @@ var charPos = [0,0];
 ipfs.once('ready', () => ipfs.id((err, info) => {
   if (err) { throw err }
   console.log('IPFS node ready with address ' + info.id)
+  const room = Room(ipfs, 'room-name')
 
   const RegType = CRDT('lwwreg')
 
@@ -50,14 +56,13 @@ ipfs.once('ready', () => ipfs.id((err, info) => {
   }
 
   $('#r' + charPos[0] + ' #c' + charPos[1] + '').addClass('player')
-
-  const room = Room(ipfs, 'room-name')
+  sendPos(room, charPos)
 
   room.on('peer joined', (peer) => {
     console.log('Peer joined the room', peer)
     for(var i=0; i<n; i++) {
       for(var j=0; j<n; j++) {
-        const rawCRDT = codec.encode({r: i, c: j, delta:valarr[i][j].state()})
+        const rawCRDT = codec.encode({type: 'delta', r: i, c: j, delta:valarr[i][j].state()})
         room.sendTo(peer, rawCRDT)
       }
     }
@@ -79,17 +84,22 @@ ipfs.once('ready', () => ipfs.id((err, info) => {
     var val = valarr[r][c];
     const delta = val.write((new Date).getTime(), (val.value() == null) ? 1 : (1 - val.value()))
     update_btn(r, c, val)
-    const rawDelta = codec.encode({r: r, c: c, delta: delta})
+    const rawDelta = codec.encode({type: 'delta', r: r, c: c, delta: delta})
     room.broadcast(rawDelta)
   })
 
   room.on('message', (message) => {
+    console.log(message)
     var mess = codec.decode(message.data)
-    r = mess['r']
-    c = mess['c']
-    delta = mess['delta']
-    valarr[r][c].apply(delta)
-    update_btn(r, c, valarr[r][c])
+    if (mess['type'] === 'delta'){
+      r = mess['r']
+      c = mess['c']
+      delta = mess['delta']
+      valarr[r][c].apply(delta)
+      update_btn(r, c, valarr[r][c])
+    } else if (mess['type'] === 'pos') {
+      console.log(mess)
+    }
   })
 
   document.getElementById("body").onkeypress = function(e) {
@@ -104,6 +114,7 @@ ipfs.once('ready', () => ipfs.id((err, info) => {
       charPos[1] = Math.min(n-1, charPos[1] + 1);
     }
     $('#r' + charPos[0] + ' #c' + charPos[1] + '').addClass('player')
+    sendPos(room, charPos)
   }
 }))
 
