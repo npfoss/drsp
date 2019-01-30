@@ -75,7 +75,7 @@ ipfs.once('ready', () => ipfs.id((err, info) => {
     var val = valarr[r][c];
     const delta = val.write((new Date).getTime(), (val.value() == null) ? 1 : (1 - val.value()))
     update_btn('.r' + r + ' .c' + c + ' button', val)
-    const rawDelta = codec.encode({r: i, c: j, delta: delta})
+    const rawDelta = codec.encode({r: r, c: c, delta: delta})
     room.broadcast(rawDelta)
     console.log('Sent delta!')
   })
