@@ -21,43 +21,86 @@ const ipfs = new IPFS({
   }
 })
 
-const update_btn = function(r, c, valreg) {
-  // $('#btn').text(valreg.value())
-  $('#r' + r + ' #c' + c + ' button').css('background-color', (valreg.value() === 1) ? 'black' : 'white')
+const n = 3;
+var valarr = [];
+
+const Grid = {
+  initial: () => {
+    const s = []
+    for(var i=0; i<n*n; i++)
+      s[i] = [0, 0]
+    return s
+  },
+  join: (s1, s2) => {
+    if (Array.isArray(s1) && Array.isArray(s2)) {
+      s = []
+      for(var i=0; i<n*n; i++) {
+	if (s1[i][0] == s2[i][0]) {
+	  s[i] = s1[i][1] > s2[i][1] ? s1[i] : s2[i]
+	} else {
+	  s[i] = s1[i][0] > s2[i][0] ? s1[i] : s2[i]
+	}
+      }
+      return s
+    } else if (!Array.isArray(s1) && !Array.isArray(s2)) {
+      const s = []
+      for(var i=0; i<n*n; i++)
+	s[i] = [0, 0]
+      if (s[s1[1]][0] < s1[0] || (s[s1[1]][0] == s1[0] && s[s1[1]][1] < s1[2])) {
+	s[s1[1]][0] = s1[0]
+	s[s1[1]][1] = s1[2]
+      }
+      if (s[s2[1]][0] < s2[0] || (s[s2[1]][0] == s2[0] && s[s2[1]][1] < s2[2])) {
+	s[s2[1]][0] = s2[0]
+	s[s2[1]][1] = s2[2]
+      }
+      return s
+    } else if (!Array.isArray(s1) && Array.isArray(s2)) {
+      const t = s1
+      s1 = s2
+      s2 = t
+    }
+    if (s2[0] > s1[s2[1]][0] || (s2[0] == s1[s2[1]][0] && s2[2] > s1[s2[1]][1])) {
+      s1[s2[1]][0] = s2[0]
+      s1[s2[1]][1] = s2[1]
+    }
+    return s1
+  },
+  value: (state) => state,
+  mutators: {
+    write (id, s, ts, r, c, v) {
+      return {ts: ts, n: n*r+c, v: v}
+    }
+  }
 }
 
-const n = 8;
-
-var valarr = [];
+CRDT.define('grid', Grid)
 
 // IPFS node is ready, so we can start using ipfs-pubsub-room
 ipfs.once('ready', () => ipfs.id((err, info) => {
   if (err) { throw err }
   console.log('IPFS node ready with address ' + info.id)
 
-  const RegType = CRDT('lwwreg')
+  const grid = CRDT('grid')(info.id)
+
+  function update_btn(r, c) {
+    $('#r' + r + ' #c' + c + ' button').css('background-color', (grid.value()[n*r+c]) ? 'black' : 'white')
+  }
 
   for(var i=0; i<n; i++) {
     $('#table').append('<tr id="r' + i + '">')
-    valarr[i] = [];
     for(var j=0; j<n; j++) {
       $('#r' + i).append('<td id="c' + j + '"><button/></td>')
-      valarr[i][j] = RegType(info.id + (n+10)*i + j);
-      update_btn(i, j, valarr[i][j])
+      update_btn(i, j)
     }
   }
 
-
-  const room = Room(ipfs, 'room-name')
+  const room = Room(ipfs, 'decent-2')
 
   room.on('peer joined', (peer) => {
     console.log('Peer joined the room', peer)
-    for(var i=0; i<n; i++) {
-      for(var j=0; j<n; j++) {
-        const rawCRDT = codec.encode({r: i, c: j, delta:valarr[i][j].state()})
-        room.sendTo(peer, rawCRDT)
-      }
-    }
+    const rawCRDT = codec.encode(grid)
+    room.sendTo(peer, rawCRDT)
   })
 
   room.on('peer left', (peer) => {
@@ -73,20 +116,22 @@ ipfs.once('ready', () => ipfs.id((err, info) => {
     // assumes n <= 10
     var c = e.currentTarget.parentNode.id[1]
     var r = e.currentTarget.parentNode.parentNode.id[1]
-    var val = valarr[r][c];
-    const delta = val.write((new Date).getTime(), (val.value() == null) ? 1 : (1 - val.value()))
+    const curVal = grid.value()[n*r+c]
+    const delta = grid.write((new Date).getTime(), n*r+c, 1 - curVal)
     update_btn(r, c, val)
-    const rawDelta = codec.encode({r: r, c: c, delta: delta})
+    const rawDelta = codec.encode(delta)
     room.broadcast(rawDelta)
   })
 
   room.on('message', (message) => {
-    var mess = codec.decode(message.data)
-    r = mess['r']
-    c = mess['c']
-    delta = mess['delta']
-    valarr[r][c].apply(delta)
-    update_btn(r, c, valarr[r][c])
+    var delta = codec.decode(message.data)
+    grid.apply(delta)
+    if (Arrays.isArray(delta)) {
+      for (var i=0; i<n*n; i++)
+	update_btn(~~(i/n), i%n)
+    } else {
+      update_btn(~~(delta[1]/n), delta[1]%n)
+    }
   })
 }))
 
