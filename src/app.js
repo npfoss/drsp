@@ -73,7 +73,7 @@ ipfs.once('ready', () => ipfs.id((err, info) => {
     var c = e.currentTarget.parentNode.classList[0][1]
     var r = e.currentTarget.parentNode.parentNode.classList[0][1]
     var val = valarr[r][c];
-    const delta = val.write((new Date).getTime(), (val.value() == null) ? 1 : (1 - val.value()))
+    const delta = val.write((new Date).getTime(), (val.value() == null) ? 0 : (1 - val.value()))
     update_btn('.r' + r + ' .c' + c + ' button', val)
     const rawDelta = codec.encode({r: r, c: c, delta: delta})
     room.broadcast(rawDelta)
@@ -83,14 +83,9 @@ ipfs.once('ready', () => ipfs.id((err, info) => {
   room.on('message', (message) => {
     console.log('Received message from ' + message.from + '!')
     var mess = codec.decode(message.data)
-    console.log(mess)
     r = mess['r']
     c = mess['c']
     delta = mess['delta']
-    console.log(r)
-    console.log(c)
-    console.log(delta)
-    console.log(valarr)
     valarr[r][c].apply(delta)
     update_btn('.r' + r + ' .c' + c + ' button', valarr[r][c])
     console.log('Processed message!')
