@@ -15,7 +15,8 @@ const ipfs = new IPFS({
   config: {
     Addresses: {
       Swarm: [
-        '/dns4/ws-star.discovery.libp2p.io/tcp/443/wss/p2p-websocket-star'
+        '/dns4/ws-star.discovery.libp2p.io/tcp/443/wss/p2p-websocket-star',
+        '/dns4/wrtc-star.discovery.libp2p.io/tcp/443/wss/p2p-webrtc-star'
       ]
     }
   }
@@ -31,7 +32,7 @@ const sendPos = function(room, pos) {
   room.broadcast(rawDelta)
 }
 
-const n = 8;
+const n = 20;
 
 var valarr = [];
 
@@ -41,7 +42,7 @@ var charPos = [0,0];
 ipfs.once('ready', () => ipfs.id((err, info) => {
   if (err) { throw err }
   console.log('IPFS node ready with address ' + info.id)
-  const room = Room(ipfs, 'room-name')
+  const room = Room(ipfs, 'decent-2')
 
   const RegType = CRDT('lwwreg')
 
@@ -63,7 +64,9 @@ ipfs.once('ready', () => ipfs.id((err, info) => {
     for(var i=0; i<n; i++) {
       for(var j=0; j<n; j++) {
         const rawCRDT = codec.encode({type: 'delta', r: i, c: j, delta:valarr[i][j].state()})
-        room.sendTo(peer, rawCRDT)
+      	setTimeout(() => {
+      	  room.sendTo(peer, rawCRDT)
+      	}, (n*i+j) * 25)
       }
     }
   })
@@ -79,8 +82,8 @@ ipfs.once('ready', () => ipfs.id((err, info) => {
 
   $('button').click((e) => {
     // assumes n <= 10
-    var c = e.currentTarget.parentNode.id[1]
-    var r = e.currentTarget.parentNode.parentNode.id[1]
+    var c = e.currentTarget.parentNode.id.slice(1)
+    var r = e.currentTarget.parentNode.parentNode.id.slice(1)
     var val = valarr[r][c];
     const delta = val.write((new Date).getTime(), (val.value() == null) ? 1 : (1 - val.value()))
     update_btn(r, c, val)
