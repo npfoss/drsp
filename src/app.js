@@ -15,7 +15,8 @@ const ipfs = new IPFS({
   config: {
     Addresses: {
       Swarm: [
-        '/dns4/ws-star.discovery.libp2p.io/tcp/443/wss/p2p-websocket-star'
+        '/dns4/ws-star.discovery.libp2p.io/tcp/443/wss/p2p-websocket-star',
+        '/dns4/wrtc-star.discovery.libp2p.io/tcp/443/wss/p2p-webrtc-star'
       ]
     }
   }
