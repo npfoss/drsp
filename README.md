@@ -1,6 +1,5 @@
 # ddocs
-Decentralized document collaboration built on IPFS, libp2p, delta-crdt, and Vue
-
+A decentralized real-time multiplayer game built on IPFS, libp2p, and delta-crdt
 
 ## installation
 
