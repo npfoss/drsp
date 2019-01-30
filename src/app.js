@@ -26,7 +26,7 @@ const update_btn = function(r, c, valreg) {
   $('#r' + r + ' #c' + c + ' button').css('background-color', (valreg.value() === 1) ? 'black' : 'white')
 }
 
-const n = 8;
+const n = 20;
 
 var valarr = [];
 
@@ -47,15 +47,16 @@ ipfs.once('ready', () => ipfs.id((err, info) => {
     }
   }
 
-
-  const room = Room(ipfs, 'room-name')
+  const room = Room(ipfs, 'decent-2')
 
   room.on('peer joined', (peer) => {
     console.log('Peer joined the room', peer)
     for(var i=0; i<n; i++) {
       for(var j=0; j<n; j++) {
         const rawCRDT = codec.encode({r: i, c: j, delta:valarr[i][j].state()})
-        room.sendTo(peer, rawCRDT)
+	setTimeout(() => {
+	  room.sendTo(peer, rawCRDT)
+	}, (n*i+j) * 25)
       }
     }
   })
@@ -71,8 +72,8 @@ ipfs.once('ready', () => ipfs.id((err, info) => {
 
   $('button').click((e) => {
     // assumes n <= 10
-    var c = e.currentTarget.parentNode.id[1]
-    var r = e.currentTarget.parentNode.parentNode.id[1]
+    var c = e.currentTarget.parentNode.id.slice(1)
+    var r = e.currentTarget.parentNode.parentNode.id.slice(1)
     var val = valarr[r][c];
     const delta = val.write((new Date).getTime(), (val.value() == null) ? 1 : (1 - val.value()))
     update_btn(r, c, val)
