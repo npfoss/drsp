@@ -1,4 +1,8 @@
 table {
+    height: 80vh;
+    width: 80vh;
+    margin: auto;
+
     border: 1px solid gray;
     border-collapse: collapse;
 }
@@ -9,8 +13,8 @@ td {
 
 button {
     display: block;
-    height: 20vh;
-    width: 20vh;
+    height: 100%;
+    width: 100%;
     padding: 0;
     border: none;
 }

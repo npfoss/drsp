@@ -1,4 +1,5 @@
 const $ = require('jquery')
+require('events').EventEmitter.defaultMaxListeners = 100;
 
 const IPFS = require('ipfs')
 const Room = require('ipfs-pubsub-room')
@@ -20,11 +21,12 @@ const ipfs = new IPFS({
   }
 })
 
-const update_btn = function(btnID, valreg) {
+const update_btn = function(r, c, valreg) {
   // $('#btn').text(valreg.value())
-  console.log('setting color for:' + btnID)
-  $(btnID).css('background-color', (valreg.value() === 0) ? 'white' : 'black')
+  $('#r' + r + ' #c' + c + ' button').css('background-color', (valreg.value() === 1) ? 'black' : 'white')
 }
+
+const n = 8;
 
 var valarr = [];
 
@@ -35,14 +37,14 @@ ipfs.once('ready', () => ipfs.id((err, info) => {
 
   const RegType = CRDT('lwwreg')
 
-  const n = 3;
-
   for(var i=0; i<n; i++) {
-      valarr[i] = [];
-      for(var j=0; j<n; j++) {
-          valarr[i][j] = RegType(info.id + (n+10)*i + j);
-          update_btn('.r' + i + ' .c' + j + ' button', valarr[i][j])
-      }
+    $('#table').append('<tr id="r' + i + '">')
+    valarr[i] = [];
+    for(var j=0; j<n; j++) {
+      $('#r' + i).append('<td id="c' + j + '"><button/></td>')
+      valarr[i][j] = RegType(info.id + (n+10)*i + j);
+      update_btn(i, j, valarr[i][j])
+    }
   }
 
 
@@ -56,7 +58,6 @@ ipfs.once('ready', () => ipfs.id((err, info) => {
         room.sendTo(peer, rawCRDT)
       }
     }
-    console.log('Sent current state!')
   })
 
   room.on('peer left', (peer) => {
@@ -69,26 +70,23 @@ ipfs.once('ready', () => ipfs.id((err, info) => {
   })
 
   $('button').click((e) => {
-    // assumes n < 10
-    var c = e.currentTarget.parentNode.classList[0][1]
-    var r = e.currentTarget.parentNode.parentNode.classList[0][1]
+    // assumes n <= 10
+    var c = e.currentTarget.parentNode.id[1]
+    var r = e.currentTarget.parentNode.parentNode.id[1]
     var val = valarr[r][c];
-    const delta = val.write((new Date).getTime(), (val.value() == null) ? 0 : (1 - val.value()))
-    update_btn('.r' + r + ' .c' + c + ' button', val)
+    const delta = val.write((new Date).getTime(), (val.value() == null) ? 1 : (1 - val.value()))
+    update_btn(r, c, val)
     const rawDelta = codec.encode({r: r, c: c, delta: delta})
     room.broadcast(rawDelta)
-    console.log('Sent delta!')
   })
 
   room.on('message', (message) => {
-    console.log('Received message from ' + message.from + '!')
     var mess = codec.decode(message.data)
     r = mess['r']
     c = mess['c']
     delta = mess['delta']
     valarr[r][c].apply(delta)
-    update_btn('.r' + r + ' .c' + c + ' button', valarr[r][c])
-    console.log('Processed message!')
+    update_btn(r, c, valarr[r][c])
   })
 }))
 
