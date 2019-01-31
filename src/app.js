@@ -1,3 +1,5 @@
+'use strict';
+
 const $ = require('jquery')
 require('events').EventEmitter.defaultMaxListeners = 100;
 
@@ -8,6 +10,10 @@ const CRDT = require('delta-crdts')
 const RegType = CRDT('lwwreg')
 const codec = require('delta-crdts-msgpack-codec')
 
+function repo() {
+  return 'ipfs-ddocs-' + Math.random()
+}
+
 const ipfs = new IPFS({
   repo: repo(),
   EXPERIMENTAL: {
@@ -17,14 +23,17 @@ const ipfs = new IPFS({
     Addresses: {
       Swarm: [
         '/dns4/ws-star.discovery.libp2p.io/tcp/443/wss/p2p-websocket-star',
-        '/dns4/wrtc-star.discovery.libp2p.io/tcp/443/wss/p2p-webrtc-star'
-      ]
-    }
+        '/dns4/wrtc-star.discovery.libp2p.io/tcp/443/wss/p2p-webrtc-star',
+        "/dns4/star-signal.cloud.ipfs.team/tcp/443/wss/p2p-webrtc-star",
+      ],
+      API: '',
+      Gateway: '',
+    },
   }
 })
 var info = undefined; // will be defined as soon as ipfs connects
 
-const roomSize = 9; // always odd so player can be in center
+const roomSize = 5; // always odd so player can be in center
 // number of tiles per side of a room
 const mapSize = 3; // number of rooms per side (all in a grid)
 // pos [0,0] is at the top left of the top left map tile,
@@ -74,14 +83,14 @@ const updateBtn = function(r, c, valreg) {
 }
 
 const showPeer = function(pos) {
-  peerrc = posToRC(pos);
+  let peerrc = posToRC(pos);
   if (!(peerrc === undefined)){
     $('#r' + peerrc[0] + ' #c' + peerrc[1] + '').addClass('peer')
   }
 }
 
 const unshowPeer = function(pos) {
-  peerrc = posToRC(pos);
+  let peerrc = posToRC(pos);
   if (!(peerrc === undefined)){
     $('#r' + peerrc[0] + ' #c' + peerrc[1] + '').removeClass('peer')
   }
@@ -109,7 +118,7 @@ const setupRoom = function(pos) {
   let roomID = getRoomID(pos)
   console.log('setting up new room! ' + roomID)
   // roompos is top left
-  roompos = [Math.floor(pos[0]/roomSize), Math.floor(pos[1]/roomSize)]
+  let roompos = [Math.floor(pos[0]/roomSize), Math.floor(pos[1]/roomSize)]
   let room = Room(ipfs, roomID)
 
   // now started to listen to room
@@ -119,9 +128,9 @@ const setupRoom = function(pos) {
 
   // first the CRDT
   let valarr = [];
-  for(var i = 0; i < roomSize; i++) {
+  for(let i = 0; i < roomSize; i++) {
     valarr[i] = [];
-    for(var j = 0; j < roomSize; j++) {
+    for(let j = 0; j < roomSize; j++) {
       valarr[i][j] = RegType(info.id + roomID + (roomSize+40)*i + j);
     }
   }
@@ -134,8 +143,8 @@ const setupRoom = function(pos) {
     peers[peer] = [0,0]
     showPeer(peers[peer])
     //send room
-    for(var i=0; i<roomSize; i++) {
-      for(var j=0; j<roomSize; j++) {
+    for(let i=0; i<roomSize; i++) {
+      for(let j=0; j<roomSize; j++) {
         const rawCRDT = codec.encode({type: 'delta', i: i, j: j, delta:valArrs[roomID][i][j].state()})
         window.setTimeout(() => {
           room.sendTo(peer, rawCRDT)
@@ -149,8 +158,11 @@ const setupRoom = function(pos) {
 
   room.on('peer left', (peer) => {
     console.log('Peer left room ' + roomID + ': ' + peer)
-    unshowPeer(peers[peer])
-    delete peers[peer];
+    if (peer in peers){
+      // sometimes peers are reported as leaving the room multiple times, or before they've joined...?
+      unshowPeer(peers[peer])
+      delete peers[peer];
+    }
   })
 
   room.on('message', (message) => {
@@ -207,9 +219,9 @@ const getValArr = function(pos) {
 }
 
 const refreshMap = function() {
-  for(var r = 0; r < roomSize; r++) {
-    for(var c = 0; c < roomSize; c++) {
-      pos = [charPos[0] + r - (roomSize-1)/2, charPos[1] + c - (roomSize-1)/2]
+  for(let r = 0; r < roomSize; r++) {
+    for(let c = 0; c < roomSize; c++) {
+      let pos = [charPos[0] + r - (roomSize-1)/2, charPos[1] + c - (roomSize-1)/2]
       unshowPeer(pos)
       let valarr = getValArr(pos)
       if (valarr === undefined) {
@@ -221,8 +233,8 @@ const refreshMap = function() {
     }
   }
   for (key in peers) {
-    if (peers.hasOwnProperty(key)) {           
-        showPeer(peers[key])
+    if (peers.hasOwnProperty(key)) {
+      showPeer(peers[key])
     }
   }
 }
@@ -234,9 +246,9 @@ ipfs.once('ready', () => ipfs.id((err, infoArg) => {
   console.log('IPFS node ready with address ' + info.id)
 
   // build table
-  for(var i = 0; i < roomSize; i++) {
+  for(let i = 0; i < roomSize; i++) {
     $('#table').append('<tr id="r' + i + '">')
-    for(var j = 0; j < roomSize; j++) {
+    for(let j = 0; j < roomSize; j++) {
       $('#r' + i).append('<td id="c' + j + '"><button/></td>')
     }
   }
@@ -288,6 +300,3 @@ ipfs.once('ready', () => ipfs.id((err, infoArg) => {
   }
 }))
 
-function repo() {
-  return 'ipfs-crdts-demo/' + Math.random()
-}
