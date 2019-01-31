@@ -118,7 +118,8 @@ var setupRoom = function(pos) {
   let roomID = getRoomID(pos)
   console.log('setting up new room! ' + roomID)
   // roompos is top left
-  let roompos = [Math.floor(pos[0]/roomSize), Math.floor(pos[1]/roomSize)]
+  let roompos = [Math.floor(pos[0]/roomSize) * roomSize, Math.floor(pos[1]/roomSize) * roomSize]
+  console.log('starting roompos: ' + roompos)
   let room = Room(ipfs, roomID)
 
   // now started to listen to room
@@ -165,18 +166,22 @@ var setupRoom = function(pos) {
     }
   })
 
-  room.on('message', (message) => {
+  room.on('message', async (message) => {
     console.log('room: ' + roomID + ' message: ')
     console.log(message)
+    console.log('roompos: ' + roompos)
     if (message.from === info.id){
       // it's from us. ignore it
       return;
     }
     let mess = codec.decode(message.data)
     if (mess['type'] === 'delta'){
-      i = mess['i']
-      j = mess['j']
-      delta = mess['delta']
+      let i = mess['i']
+      let j = mess['j']
+      let delta = mess['delta']
+      console.log('valArrs')
+      console.log(valArrs)
+      console.log('roomID ' + roomID)
       valArrs[roomID][i][j].apply(delta)
       let rc = posToRC([roompos[0] + i, roompos[1] + j])
       updateBtn(rc[0], rc[1], valArrs[roomID][i][j])
@@ -232,7 +237,7 @@ var refreshMap = function() {
       }
     }
   }
-  for (key in peers) {
+  for (let key in peers) {
     if (peers.hasOwnProperty(key)) {
       showPeer(peers[key])
     }
