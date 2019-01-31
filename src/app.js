@@ -33,9 +33,9 @@ var ipfs = new IPFS({
 })
 var info = undefined; // will be defined as soon as ipfs connects
 
-const roomSize = 5; // always odd so player can be in center
+const roomSize = 9; // always odd so player can be in center
 // number of tiles per side of a room
-const mapSize = 3; // number of rooms per side (all in a grid)
+const mapSize = 255; // number of rooms per side (all in a grid)
 // pos [0,0] is at the top left of the top left map tile,
 //  [roomSize*mapSize-1, roomSize*mapSize-1] is the bottom right
 
