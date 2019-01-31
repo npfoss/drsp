@@ -137,7 +137,7 @@ const setupRoom = function(pos) {
     for(var i=0; i<roomSize; i++) {
       for(var j=0; j<roomSize; j++) {
         const rawCRDT = codec.encode({type: 'delta', i: i, j: j, delta:valArrs[roomID][i][j].state()})
-        setTimeout(() => {
+        window.setTimeout(() => {
           room.sendTo(peer, rawCRDT)
         }, (roomSize*i+j) * 25)
       }
@@ -154,7 +154,8 @@ const setupRoom = function(pos) {
   })
 
   room.on('message', (message) => {
-    console.log('room: ' + roomID + ' message: ' + message)
+    console.log('room: ' + roomID + ' message: ')
+    console.log(message)
     if (message.from === info.id){
       // it's from us. ignore it
       return;
