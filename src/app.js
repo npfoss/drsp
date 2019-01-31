@@ -184,7 +184,9 @@ var setupRoom = function(pos) {
       console.log('roomID ' + roomID)
       valArrs[roomID][i][j].apply(delta)
       let rc = posToRC([roompos[0] + i, roompos[1] + j])
-      updateBtn(rc[0], rc[1], valArrs[roomID][i][j])
+      if (rc !== undefined) {
+        updateBtn(rc[0], rc[1], valArrs[roomID][i][j])
+      }
     } else if (mess['type'] === 'pos') {
       unshowPeer(peers[message.from])
       peers[message.from] = [mess['p0'], mess['p1']]
@@ -299,7 +301,7 @@ ipfs.once('ready', () => ipfs.id((err, infoArg) => {
     let newroom = getRoom(charPos)
     sendPos(newroom, charPos)
     if (newroom !== prevroom) {
-      sendPos(newroom, charPos)
+      sendPos(prevroom, charPos)
     }
     refreshMap()
   }
