@@ -237,7 +237,6 @@ ipfs.once('ready', () => ipfs.id((err, infoArg) => {
     $('#table').append('<tr id="r' + i + '">')
     for(var j = 0; j < roomSize; j++) {
       $('#r' + i).append('<td id="c' + j + '"><button/></td>')
-      console.log('setting up')
     }
   }
   $('#r' + (roomSize-1)/2 + ' #c' + (roomSize-1)/2 + '').addClass('player')
@@ -266,6 +265,7 @@ ipfs.once('ready', () => ipfs.id((err, infoArg) => {
 
 
   document.getElementById("body").onkeypress = function(e) {
+    let prevroom = getRoom(charPos)
     if (e['key'] == 'w'){
       charPos[0] -= 1;
     } else if (e['key'] == 's'){
@@ -278,7 +278,11 @@ ipfs.once('ready', () => ipfs.id((err, infoArg) => {
       console.log('unsupported keypress')
       return
     }
-    sendPos(getRoom(charPos), charPos)
+    let newroom = getRoom(charPos)
+    sendPos(newroom, charPos)
+    if (newroom !== prevroom) {
+      sendPos(newroom, charPos)
+    }
     refreshMap()
   }
 }))
