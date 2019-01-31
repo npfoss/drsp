@@ -33,9 +33,9 @@ var ipfs = new IPFS({
 })
 var info = undefined; // will be defined as soon as ipfs connects
 
-const roomSize = 5; // always odd so player can be in center
+const roomSize = 9; // always odd so player can be in center
 // number of tiles per side of a room
-const mapSize = 3; // number of rooms per side (all in a grid)
+const mapSize = 255; // number of rooms per side (all in a grid)
 // pos [0,0] is at the top left of the top left map tile,
 //  [roomSize*mapSize-1, roomSize*mapSize-1] is the bottom right
 
@@ -53,6 +53,7 @@ map does not wrap around
 var charPos = [roomSize + (roomSize-1)/2, roomSize + (roomSize-1)/2]; // always in the center of the room
 
 var peers = {};
+var peerList = {};
 
 var rooms = {};
 var valArrs = {};
@@ -120,7 +121,7 @@ var setupRoom = function(pos) {
   // roompos is top left
   let roompos = [Math.floor(pos[0]/roomSize) * roomSize, Math.floor(pos[1]/roomSize) * roomSize]
   console.log('starting roompos: ' + roompos)
-  let room = Room(ipfs, roomID)
+  let room = Room(ipfs, roomID, {pollInterval: 5000})
 
   // now started to listen to room
   room.on('subscribed', () => {
@@ -140,16 +141,33 @@ var setupRoom = function(pos) {
   // next set up all the callbacks
   room.on('peer joined', (peer) => {
     console.log('Peer joined room ' + roomID + ': ' + peer)
+    if (peerList[roomID] == null) {
+      peerList[roomID] = [info.id]
+    }
+    peerList[roomID].push(peer)
+    peerList[roomID].sort()
     // update pos
     peers[peer] = [0,0]
     showPeer(peers[peer])
     //send room
-    for(let i=0; i<roomSize; i++) {
-      for(let j=0; j<roomSize; j++) {
-        let rawCRDT = codec.encode({type: 'delta', i: i, j: j, delta:valArrs[roomID][i][j].state()})
-        window.setTimeout(() => {
-          room.sendTo(peer, rawCRDT)
-        }, (roomSize*i+j) * 25)
+    const me = peerList[roomID].indexOf(info.id)
+    const you = peerList[roomID].indexOf(peer)
+    const nPeers = peerList[roomID].length
+    if ((you > me && you <= me + 3)
+	|| (you + nPeers > me && you + nPeers <= me + 3)) {
+      console.log("sending info to " + peer);
+      let delay = 0
+      for(let i=0; i<roomSize; i++) {
+	for(let j=0; j<roomSize; j++) {
+	  if (valArrs[roomID][i][j].state()[0] > 0) {
+            let rawCRDT = codec.encode({type: 'delta', i: i, j: j, delta:valArrs[roomID][i][j].state()})
+            window.setTimeout(() => {
+              room.sendTo(peer, rawCRDT)
+            }, delay)
+	    delay += 25
+	  } else {
+	  }
+	}
       }
     }
     // send pos
@@ -159,6 +177,11 @@ var setupRoom = function(pos) {
 
   room.on('peer left', (peer) => {
     console.log('Peer left room ' + roomID + ': ' + peer)
+    const peerIndex = peerList[roomID].indexOf(peer)
+    if (peerIndex != -1) {
+      peerList[roomID].splice(peerIndex, 1)
+      console.log('peers are now ' + peerList[roomID])
+    }
     if (peer in peers){
       // sometimes peers are reported as leaving the room multiple times, or before they've joined...?
       unshowPeer(peers[peer])
@@ -167,9 +190,9 @@ var setupRoom = function(pos) {
   })
 
   room.on('message', async (message) => {
-    console.log('room: ' + roomID + ' message: ')
-    console.log(message)
-    console.log('roompos: ' + roompos)
+    //console.log('room: ' + roomID + ' message: ')
+    //console.log(message)
+    //console.log('roompos: ' + roompos)
     if (message.from === info.id){
       // it's from us. ignore it
       return;
@@ -179,9 +202,9 @@ var setupRoom = function(pos) {
       let i = mess['i']
       let j = mess['j']
       let delta = mess['delta']
-      console.log('valArrs')
-      console.log(valArrs)
-      console.log('roomID ' + roomID)
+      //console.log('valArrs')
+      //console.log(valArrs)
+      //console.log('roomID ' + roomID)
       valArrs[roomID][i][j].apply(delta)
       let rc = posToRC([roompos[0] + i, roompos[1] + j])
       if (rc !== undefined) {
@@ -264,28 +287,26 @@ ipfs.once('ready', () => ipfs.id((err, infoArg) => {
   refreshMap()
   sendPos(getRoom(charPos), charPos)
 
-  $('button').click((e) => {
-    // assumes roomSize <= 10
-    let c = e.currentTarget.parentNode.id.slice(1)
-    let r = e.currentTarget.parentNode.parentNode.id.slice(1)
-    let pos = rcToPos(parseInt(r), parseInt(c))
-    let roomID = getRoomID(pos)
-    if (roomID === undefined){
-      updateBtn(r, c, undefined)
-      return
-    }
-    let room = getRoom(pos)
-    let ij = posToIJ(pos)
-    let val = valArrs[roomID][ij[0]][ij[1]]
-    let delta = val.write((new Date).getTime(), (val.value() == null) ? 1 : (1 - val.value()))
-    updateBtn(r, c, val)
-    let rawDelta = codec.encode({type: 'delta', i: ij[0], j: ij[1], delta: delta})
-    room.broadcast(rawDelta)
-  })
-
-
   document.getElementById("body").onkeypress = function(e) {
     let prevroom = getRoom(charPos)
+    if (e['key'] == ' ') {
+      // assumes roomSize <= 10
+      let pos = charPos
+      let roomID = getRoomID(pos)
+      if (roomID === undefined){
+	updateBtn(r, c, undefined)
+	return
+      }
+      let room = getRoom(pos)
+      let ij = posToIJ(pos)
+      let val = valArrs[roomID][ij[0]][ij[1]]
+      let delta = val.write((new Date).getTime(), (val.value() == null) ? 1 : (1 - val.value()))
+      let rc = posToRC(pos)
+      updateBtn(rc[0], rc[1], val)
+      let rawDelta = codec.encode({type: 'delta', i: ij[0], j: ij[1], delta: delta})
+      room.broadcast(rawDelta)
+      return
+    }
     if (e['key'] == 'w'){
       charPos[0] -= 1;
     } else if (e['key'] == 's'){
