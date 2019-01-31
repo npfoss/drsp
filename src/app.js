@@ -14,7 +14,7 @@ function repo() {
   return 'ipfs-ddocs-' + Math.random()
 }
 
-const ipfs = new IPFS({
+var ipfs = new IPFS({
   repo: repo(),
   EXPERIMENTAL: {
     pubsub: true
@@ -57,23 +57,23 @@ var peers = {};
 var rooms = {};
 var valArrs = {};
 
-const posToRC = function(pos) {
+var posToRC = function(pos) {
   // matters because always at the center
   let r = pos[0] - charPos[0] + (roomSize-1)/2
   let c = pos[1] - charPos[1] + (roomSize-1)/2
   return (r < 0 || c < 0 || r >= roomSize || c >= roomSize) ? undefined : [r,c];
 }
 
-const posToIJ = function(pos) {
+var posToIJ = function(pos) {
   return [(pos[0] + roomSize) % roomSize , (pos[1] + roomSize) % roomSize]
 }
 
-const rcToPos = function(r, c) {
+var rcToPos = function(r, c) {
   // charPos is absolute player position
   return [charPos[0] + r - (roomSize-1)/2, charPos[1] + c - (roomSize-1)/2]
 }
 
-const updateBtn = function(r, c, valreg) {
+var updateBtn = function(r, c, valreg) {
   // $('#btn').text(valreg.value())
   if (valreg === undefined || valreg === null){
     $('#r' + r + ' #c' + c + ' button').css('background-color', 'gray')
@@ -82,30 +82,30 @@ const updateBtn = function(r, c, valreg) {
   }
 }
 
-const showPeer = function(pos) {
+var showPeer = function(pos) {
   let peerrc = posToRC(pos);
   if (!(peerrc === undefined)){
     $('#r' + peerrc[0] + ' #c' + peerrc[1] + '').addClass('peer')
   }
 }
 
-const unshowPeer = function(pos) {
+var unshowPeer = function(pos) {
   let peerrc = posToRC(pos);
   if (!(peerrc === undefined)){
     $('#r' + peerrc[0] + ' #c' + peerrc[1] + '').removeClass('peer')
   }
 }
 
-const sendPos = function(room, pos) {
+var sendPos = function(room, pos) {
   if (room === undefined){
     console.log('sendPos: room undefined')
     return
   }
-  const rawDelta = codec.encode({type: 'pos', p0: pos[0], p1: pos[1]})
+  let rawDelta = codec.encode({type: 'pos', p0: pos[0], p1: pos[1]})
   room.broadcast(rawDelta)
 }
 
-const getRoomID = function(pos){
+var getRoomID = function(pos){
   // absolute game pos
   if (pos[0] < 0 || pos[1] < 1 || pos[0] >= mapSize*roomSize || pos[1] >= mapSize*roomSize) {
     return undefined
@@ -114,7 +114,7 @@ const getRoomID = function(pos){
 }
 
 // sets up a new room and CRDT
-const setupRoom = function(pos) {
+var setupRoom = function(pos) {
   let roomID = getRoomID(pos)
   console.log('setting up new room! ' + roomID)
   // roompos is top left
@@ -145,14 +145,14 @@ const setupRoom = function(pos) {
     //send room
     for(let i=0; i<roomSize; i++) {
       for(let j=0; j<roomSize; j++) {
-        const rawCRDT = codec.encode({type: 'delta', i: i, j: j, delta:valArrs[roomID][i][j].state()})
+        let rawCRDT = codec.encode({type: 'delta', i: i, j: j, delta:valArrs[roomID][i][j].state()})
         window.setTimeout(() => {
           room.sendTo(peer, rawCRDT)
         }, (roomSize*i+j) * 25)
       }
     }
     // send pos
-    const rawDelta = codec.encode({type: 'pos', p0: charPos[0], p1: charPos[1]})
+    let rawDelta = codec.encode({type: 'pos', p0: charPos[0], p1: charPos[1]})
     room.sendTo(peer, rawDelta)
   })
 
@@ -190,7 +190,7 @@ const setupRoom = function(pos) {
   rooms[roomID] = room
 }
 
-const getRoom = function(pos) {
+var getRoom = function(pos) {
   // pos is absolute game position over the whole map
   let roomID = getRoomID(pos)
   if (roomID === undefined) {
@@ -204,7 +204,7 @@ const getRoom = function(pos) {
   return rooms[roomID];
 }
 
-const getValArr = function(pos) {
+var getValArr = function(pos) {
   // pos is absolute game position over the whole map
   let roomID = getRoomID(pos)
   if (roomID === undefined) {
@@ -218,7 +218,7 @@ const getValArr = function(pos) {
   return valArrs[roomID];
 }
 
-const refreshMap = function() {
+var refreshMap = function() {
   for(let r = 0; r < roomSize; r++) {
     for(let c = 0; c < roomSize; c++) {
       let pos = [charPos[0] + r - (roomSize-1)/2, charPos[1] + c - (roomSize-1)/2]
@@ -270,9 +270,9 @@ ipfs.once('ready', () => ipfs.id((err, infoArg) => {
     let room = getRoom(pos)
     let ij = posToIJ(pos)
     let val = valArrs[roomID][ij[0]][ij[1]]
-    const delta = val.write((new Date).getTime(), (val.value() == null) ? 1 : (1 - val.value()))
+    let delta = val.write((new Date).getTime(), (val.value() == null) ? 1 : (1 - val.value()))
     updateBtn(r, c, val)
-    const rawDelta = codec.encode({type: 'delta', i: ij[0], j: ij[1], delta: delta})
+    let rawDelta = codec.encode({type: 'delta', i: ij[0], j: ij[1], delta: delta})
     room.broadcast(rawDelta)
   })
 
