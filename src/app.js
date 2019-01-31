@@ -285,28 +285,26 @@ ipfs.once('ready', () => ipfs.id((err, infoArg) => {
   refreshMap()
   sendPos(getRoom(charPos), charPos)
 
-  $('button').click((e) => {
-    // assumes roomSize <= 10
-    let c = e.currentTarget.parentNode.id.slice(1)
-    let r = e.currentTarget.parentNode.parentNode.id.slice(1)
-    let pos = rcToPos(parseInt(r), parseInt(c))
-    let roomID = getRoomID(pos)
-    if (roomID === undefined){
-      updateBtn(r, c, undefined)
-      return
-    }
-    let room = getRoom(pos)
-    let ij = posToIJ(pos)
-    let val = valArrs[roomID][ij[0]][ij[1]]
-    let delta = val.write((new Date).getTime(), (val.value() == null) ? 1 : (1 - val.value()))
-    updateBtn(r, c, val)
-    let rawDelta = codec.encode({type: 'delta', i: ij[0], j: ij[1], delta: delta})
-    room.broadcast(rawDelta)
-  })
-
-
   document.getElementById("body").onkeypress = function(e) {
     let prevroom = getRoom(charPos)
+    if (e['key'] == ' ') {
+      // assumes roomSize <= 10
+      let pos = charPos
+      let roomID = getRoomID(pos)
+      if (roomID === undefined){
+	updateBtn(r, c, undefined)
+	return
+      }
+      let room = getRoom(pos)
+      let ij = posToIJ(pos)
+      let val = valArrs[roomID][ij[0]][ij[1]]
+      let delta = val.write((new Date).getTime(), (val.value() == null) ? 1 : (1 - val.value()))
+      let rc = posToRC(pos)
+      updateBtn(rc[0], rc[1], val)
+      let rawDelta = codec.encode({type: 'delta', i: ij[0], j: ij[1], delta: delta})
+      room.broadcast(rawDelta)
+      return
+    }
     if (e['key'] == 'w'){
       charPos[0] -= 1;
     } else if (e['key'] == 's'){
