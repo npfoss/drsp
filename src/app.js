@@ -121,7 +121,7 @@ var setupRoom = function(pos) {
   // roompos is top left
   let roompos = [Math.floor(pos[0]/roomSize) * roomSize, Math.floor(pos[1]/roomSize) * roomSize]
   console.log('starting roompos: ' + roompos)
-  let room = Room(ipfs, roomID)
+  let room = Room(ipfs, roomID, {pollInterval: 5000})
 
   // now started to listen to room
   room.on('subscribed', () => {
