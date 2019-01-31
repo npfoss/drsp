@@ -45,6 +45,7 @@ ipfs.once('ready', () => ipfs.id((err, info) => {
   if (err) { throw err }
   console.log('IPFS node ready with address ' + info.id)
   const room = Room(ipfs, 'pikachu')
+  const room2 = Room(ipfs, 'pichu')
 
   const RegType = CRDT('lwwreg')
 
@@ -79,8 +80,31 @@ ipfs.once('ready', () => ipfs.id((err, info) => {
     const rawDelta = codec.encode({type: 'pos', r: charPos[0], c: charPos[1]})
     room.sendTo(peer, rawDelta)
   })
+  room2.on('peer joined', (peer) => {
+    console.log('Peer joined the room', peer)
+    // update pos
+    peers[peer] = [0,0]
+    $('#r' + peers[peer][0] + ' #c' + peers[peer][1] + '').addClass('peer')
+    //send room
+    for(var i=0; i<n; i++) {
+      for(var j=0; j<n; j++) {
+        const rawCRDT = codec.encode({type: 'delta', r: i, c: j, delta:valarr[i][j].state()})
+        setTimeout(() => {
+          room2.sendTo(peer, rawCRDT)
+        }, (n*i+j) * 25)
+      }
+    }
+    // send pos
+    const rawDelta = codec.encode({type: 'pos', r: charPos[0], c: charPos[1]})
+    room2.sendTo(peer, rawDelta)
+  })
 
   room.on('peer left', (peer) => {
+    console.log('Peer left...', peer)
+    $('#r' + peers[peer][0] + ' #c' + peers[peer][1] + '').removeClass('peer')
+    delete peers[peer];
+  })
+  room2.on('peer left', (peer) => {
     console.log('Peer left...', peer)
     $('#r' + peers[peer][0] + ' #c' + peers[peer][1] + '').removeClass('peer')
     delete peers[peer];
@@ -88,6 +112,9 @@ ipfs.once('ready', () => ipfs.id((err, info) => {
 
   // now started to listen to room
   room.on('subscribed', () => {
+    console.log('Now connected!')
+  })
+  room2.on('subscribed', () => {
     console.log('Now connected!')
   })
 
@@ -99,10 +126,34 @@ ipfs.once('ready', () => ipfs.id((err, info) => {
     const delta = val.write((new Date).getTime(), (val.value() == null) ? 1 : (1 - val.value()))
     update_btn(r, c, val)
     const rawDelta = codec.encode({type: 'delta', r: r, c: c, delta: delta})
-    room.broadcast(rawDelta)
+    if (r % 2 === 0){
+      room.broadcast(rawDelta)
+    } else {
+      room2.broadcast(rawDelta)
+    }
   })
 
   room.on('message', (message) => {
+    console.log(message)
+    if (message.from === info.id){
+      // it's from us. ignore it
+      return;
+    }
+    var mess = codec.decode(message.data)
+    if (mess['type'] === 'delta'){
+      r = mess['r']
+      c = mess['c']
+      delta = mess['delta']
+      valarr[r][c].apply(delta)
+      update_btn(r, c, valarr[r][c])
+    } else if (mess['type'] === 'pos') {
+      console.log(mess)
+      $('#r' + peers[message.from][0] + ' #c' + peers[message.from][1] + '').removeClass('peer')
+      peers[message.from] = [mess['r'], mess['c']]
+      $('#r' + peers[message.from][0] + ' #c' + peers[message.from][1] + '').addClass('peer')
+    }
+  })
+  room2.on('message', (message) => {
     console.log(message)
     if (message.from === info.id){
       // it's from us. ignore it
@@ -135,7 +186,11 @@ ipfs.once('ready', () => ipfs.id((err, info) => {
       charPos[1] = Math.min(n-1, charPos[1] + 1);
     }
     $('#r' + charPos[0] + ' #c' + charPos[1] + '').addClass('player')
-    sendPos(room, charPos)
+    if (r % 2 === 0){
+      sendPos(room, charPos)
+    } else {
+      sendPos(room2, charPos)
+    }
   }
 }))
 
