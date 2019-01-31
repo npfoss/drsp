@@ -73,6 +73,27 @@ const rcToPos = function(r, c) {
   return [charPos[0] + r - (roomSize-1)/2, charPos[1] + c - (roomSize-1)/2]
 }
 
+const encodeTile = function(p0, p1, v) {
+  return codec.encode([p0, p1, v])
+}
+
+const decodeTile = function(m) {
+  arr = codec.decode(m)
+  return {
+    p0: arr[1],
+    p1: arr[2],
+    v: arr[3],
+  }
+}
+
+const encodeCursor = function(p0, p1) {
+  return codec.encode([p0, p1])
+}
+
+const decodeCursor = function(m) {
+  return codec.decode(m)
+}
+
 const updateBtn = function(r, c, valreg) {
   // $('#btn').text(valreg.value())
   if (valreg === undefined || valreg === null){
@@ -101,7 +122,7 @@ const sendPos = function(room, pos) {
     console.log('sendPos: room undefined')
     return
   }
-  const rawDelta = codec.encode({type: 'pos', p0: pos[0], p1: pos[1]})
+  const rawDelta = encodeCursor(pos[0], pos[1])
   room.broadcast(rawDelta)
 }
 
@@ -110,7 +131,7 @@ const getRoomID = function(pos){
   if (pos[0] < 0 || pos[1] < 1 || pos[0] >= mapSize*roomSize || pos[1] >= mapSize*roomSize) {
     return undefined
   }
-  return 'ddocs-' + Math.floor(pos[0]/roomSize) + '-' + Math.floor(pos[1]/roomSize)
+  return 'ddocs-decent-1-' + Math.floor(pos[0]/roomSize) + '-' + Math.floor(pos[1]/roomSize)
 }
 
 // sets up a new room and CRDT
@@ -145,14 +166,16 @@ const setupRoom = function(pos) {
     //send room
     for(let i=0; i<roomSize; i++) {
       for(let j=0; j<roomSize; j++) {
-        const rawCRDT = codec.encode({type: 'delta', i: i, j: j, delta:valArrs[roomID][i][j].state()})
+	const rawCRDT = encodeTile(i, j, valArrs[roomID][i][j].state())
+        //const rawCRDT = codec.encode({/*t: 0, */i: i, j: j, delta:valArrs[roomID][i][j].state()})
         window.setTimeout(() => {
           room.sendTo(peer, rawCRDT)
         }, (roomSize*i+j) * 25)
       }
     }
     // send pos
-    const rawDelta = codec.encode({type: 'pos', p0: charPos[0], p1: charPos[1]})
+    const rawDelta = encodeCursor(charPos[0], charPos[1])
+    //const rawDelta = codec.encode({/*t: 1, */p0: charPos[0], p1: charPos[1]})
     room.sendTo(peer, rawDelta)
   })
 
@@ -173,16 +196,16 @@ const setupRoom = function(pos) {
       return;
     }
     let mess = codec.decode(message.data)
-    if (mess['type'] === 'delta'){
-      i = mess['i']
-      j = mess['j']
-      delta = mess['delta']
+    if (mess.length === 3){
+      let i = mess[0]
+      let j = mess[1]
+      let delta = mess[2]
       valArrs[roomID][i][j].apply(delta)
       let rc = posToRC([roompos[0] + i, roompos[1] + j])
       updateBtn(rc[0], rc[1], valArrs[roomID][i][j])
-    } else if (mess['type'] === 'pos') {
+    } else if (mess.length === 2) {
       unshowPeer(peers[message.from])
-      peers[message.from] = [mess['p0'], mess['p1']]
+      peers[message.from] = [mess[0], mess[1]]
       showPeer(peers[message.from])
     }
   })
@@ -232,7 +255,7 @@ const refreshMap = function() {
       }
     }
   }
-  for (key in peers) {
+  for (let key in peers) {
     if (peers.hasOwnProperty(key)) {
       showPeer(peers[key])
     }
@@ -272,7 +295,8 @@ ipfs.once('ready', () => ipfs.id((err, infoArg) => {
     let val = valArrs[roomID][ij[0]][ij[1]]
     const delta = val.write((new Date).getTime(), (val.value() == null) ? 1 : (1 - val.value()))
     updateBtn(r, c, val)
-    const rawDelta = codec.encode({type: 'delta', i: ij[0], j: ij[1], delta: delta})
+    const rawDelta = encodeTile(ij[0], ij[1], delta)
+    //const rawDelta = codec.encode({t: 0, i: ij[0], j: ij[1], delta: delta})
     room.broadcast(rawDelta)
   })
 
