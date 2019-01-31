@@ -23,6 +23,10 @@ button:focus {
     outline: 0;
 }
 
+#coords {
+    float: right;
+}
+
 .player {
     padding: 3px;
     background-color: green;
