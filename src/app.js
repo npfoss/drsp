@@ -53,6 +53,7 @@ map does not wrap around
 var charPos = [roomSize + (roomSize-1)/2, roomSize + (roomSize-1)/2]; // always in the center of the room
 
 var peers = {};
+var peerList = {};
 
 var rooms = {};
 var valArrs = {};
@@ -140,16 +141,33 @@ var setupRoom = function(pos) {
   // next set up all the callbacks
   room.on('peer joined', (peer) => {
     console.log('Peer joined room ' + roomID + ': ' + peer)
+    if (peerList[roomID] == null) {
+      peerList[roomID] = [info.id]
+    }
+    peerList[roomID].push(peer)
+    peerList[roomID].sort()
     // update pos
     peers[peer] = [0,0]
     showPeer(peers[peer])
     //send room
-    for(let i=0; i<roomSize; i++) {
-      for(let j=0; j<roomSize; j++) {
-        let rawCRDT = codec.encode({type: 'delta', i: i, j: j, delta:valArrs[roomID][i][j].state()})
-        window.setTimeout(() => {
-          room.sendTo(peer, rawCRDT)
-        }, (roomSize*i+j) * 25)
+    const me = peerList[roomID].indexOf(info.id)
+    const you = peerList[roomID].indexOf(peer)
+    const nPeers = peerList[roomID].length
+    if ((you > me && you <= me + 3)
+	|| (you + nPeers > me && you + nPeers <= me + 3)) {
+      console.log("sending info to " + peer);
+      let delay = 0
+      for(let i=0; i<roomSize; i++) {
+	for(let j=0; j<roomSize; j++) {
+	  if (valArrs[roomID][i][j].state()[0] > 0) {
+            let rawCRDT = codec.encode({type: 'delta', i: i, j: j, delta:valArrs[roomID][i][j].state()})
+            window.setTimeout(() => {
+              room.sendTo(peer, rawCRDT)
+            }, delay)
+	    delay += 25
+	  } else {
+	  }
+	}
       }
     }
     // send pos
@@ -159,6 +177,11 @@ var setupRoom = function(pos) {
 
   room.on('peer left', (peer) => {
     console.log('Peer left room ' + roomID + ': ' + peer)
+    const peerIndex = peerList[roomID].indexOf(peer)
+    if (peerIndex != -1) {
+      peerList[roomID].splice(peerIndex, 1)
+      console.log('peers are now ' + peerList[roomID])
+    }
     if (peer in peers){
       // sometimes peers are reported as leaving the room multiple times, or before they've joined...?
       unshowPeer(peers[peer])
@@ -167,9 +190,9 @@ var setupRoom = function(pos) {
   })
 
   room.on('message', async (message) => {
-    console.log('room: ' + roomID + ' message: ')
-    console.log(message)
-    console.log('roompos: ' + roompos)
+    //console.log('room: ' + roomID + ' message: ')
+    //console.log(message)
+    //console.log('roompos: ' + roompos)
     if (message.from === info.id){
       // it's from us. ignore it
       return;
@@ -179,9 +202,9 @@ var setupRoom = function(pos) {
       let i = mess['i']
       let j = mess['j']
       let delta = mess['delta']
-      console.log('valArrs')
-      console.log(valArrs)
-      console.log('roomID ' + roomID)
+      //console.log('valArrs')
+      //console.log(valArrs)
+      //console.log('roomID ' + roomID)
       valArrs[roomID][i][j].apply(delta)
       let rc = posToRC([roompos[0] + i, roompos[1] + j])
       updateBtn(rc[0], rc[1], valArrs[roomID][i][j])
