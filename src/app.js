@@ -314,9 +314,14 @@ ipfs.once('ready', () => ipfs.id((err, infoArg) => {
   $('#r' + (roomSize-1)/2 + ' #c' + (roomSize-1)/2 + '').css('background-color', colorForPeer(info.id))
 
   $("button#go-btn").click(function () {
-    console.log('this happened')
     let inp = $('#room-input').val();
     console.log(inp)
+    let y = parseInt(inp.substring(1+inp.lastIndexOf('-')))
+    inp = inp.substring(0, inp.lastIndexOf('-'))
+    let x = parseInt(inp.substring(1+inp.lastIndexOf('-')))
+    /// should probably broadcast change in pos to this room TODO
+    charPos = [x*roomSize+(roomSize-1)/2, y*roomSize+(roomSize-1)/2]
+    refreshMap()
   })
 
   refreshMap()
