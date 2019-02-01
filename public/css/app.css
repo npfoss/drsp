@@ -1,12 +1,14 @@
 body {
     font-family: 'Roboto', 'Helvetica', sans-serif;
+    margin: auto;
+    font-size: 2em;
+    text-align: center;
 }
 
 table {
     height: 80vh;
     width: 80vh;
     margin: auto;
-
     border: 1px solid gray;
     border-collapse: collapse;
 }
@@ -15,7 +17,7 @@ td {
     border: 1px solid gray;
 }
 
-button {
+table button {
     display: block;
     height: 100%;
     width: 100%;
@@ -27,10 +29,20 @@ button:focus {
     outline: 0;
 }
 
-#coords {
-    margin: auto;
-    text-align: center;
-    font-size: 2em;
+#room-info div {
+    display: inline-block;
+    padding: 5px;
+}
+
+#go-btn {
+    font-size: 0.8em;
+    /*height: 100%;*/
+    /*width: 3em;*/
+}
+
+input {
+    height: 2em;
+    padding-top: 0px;
 }
 
 .player {

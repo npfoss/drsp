@@ -278,7 +278,8 @@ var refreshMap = function() {
       showPeer(peers[key])
     }
   }
-  $('#coords').text('(' + charPos[1] + ', ' + charPos[0] + ')')
+  $('#coords').text('(' + charPos[1] + ', ' + charPos[0] + ')');
+  $('#room-input').val(getRoomID(charPos));
 }
 
 // IPFS node is ready, so we can start using ipfs-pubsub-room
@@ -295,6 +296,12 @@ ipfs.once('ready', () => ipfs.id((err, infoArg) => {
     }
   }
   $('#r' + (roomSize-1)/2 + ' #c' + (roomSize-1)/2 + '').addClass('player')
+
+  $("button#go-btn").click(function () {
+    console.log('this happened')
+    let inp = $('#room-input').val();
+    console.log(inp)
+  })
 
   refreshMap()
   sendPos(getRoom(charPos), charPos)
