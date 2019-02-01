@@ -1,3 +1,7 @@
+body {
+    font-family: 'Roboto', 'Helvetica', sans-serif;
+}
+
 table {
     height: 80vh;
     width: 80vh;
@@ -24,7 +28,9 @@ button:focus {
 }
 
 #coords {
-    float: right;
+    margin: auto;
+    text-align: center;
+    font-size: 2em;
 }
 
 .player {

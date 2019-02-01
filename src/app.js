@@ -306,8 +306,8 @@ ipfs.once('ready', () => ipfs.id((err, infoArg) => {
       let pos = charPos
       let roomID = getRoomID(pos)
       if (roomID === undefined){
-	updateBtn(r, c, undefined)
-	return
+      	updateBtn(r, c, undefined)
+      	return
       }
       let room = getRoom(pos)
       let ij = posToIJ(pos)
