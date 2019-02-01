@@ -324,6 +324,8 @@ ipfs.once('ready', () => ipfs.id((err, infoArg) => {
     refreshMap()
     sendPos(getRoom(charPos), charPos)
   })
+  // so you don't click the button every time you hit space now
+  $('button#go-btn').mouseup(function() { this.blur() })
 
   refreshMap()
   sendPos(getRoom(charPos), charPos)
