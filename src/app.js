@@ -28,6 +28,17 @@ const CRDT = require('delta-crdts')
 const RegType = CRDT('lwwreg')
 const codec = require('delta-crdts-msgpack-codec')
 
+String.prototype.hashCode = function() {
+  var hash = 0, i, chr;
+  if (this.length === 0) return hash;
+  for (i = 0; i < this.length; i++) {
+    chr   = this.charCodeAt(i);
+    hash  = ((hash << 5) - hash) + chr;
+    hash |= 0; // Convert to 32bit integer
+  }
+  return hash;
+};
+
 function repo() {
   return 'ipfs-ddocs-' + Math.random()
 }
@@ -184,8 +195,11 @@ var setupRoom = function(pos) {
     peerList[roomID].push(peer)
     peerList[roomID].sort()
     // update pos
-    peers[peer] = [0,0]
-    showPeer(peers[peer], peer)
+    if (!(peer in peers)) {
+      // sometimes sends us a message first smh. they're already shown if so
+      peers[peer] = [0,0]
+      showPeer(peers[peer], peer)
+    }
     //send room
     const me = peerList[roomID].indexOf(info.id)
     const you = peerList[roomID].indexOf(peer)
@@ -300,7 +314,6 @@ var refreshMap = function() {
       showPeer(peers[key], key)
     }
   }
-  $('#room-input').val(getRoomID(charPos));
   $('#coords').text('(' + (charPos[1]-center) + ', ' + (charPos[0]-center) + ')')
 }
 
@@ -322,11 +335,14 @@ ipfs.once('ready', () => ipfs.id((err, infoArg) => {
 
   $("button#go-btn").click(function () {
     let inp = $('#room-input').val();
-    let y = parseInt(inp.substring(1+inp.lastIndexOf('-')))
-    inp = inp.substring(0, inp.lastIndexOf('-'))
-    let x = parseInt(inp.substring(1+inp.lastIndexOf('-')))
+    let h = inp.hashCode()
+    let y = h % mapSize
+    let x = Math.ceil(h / mapSize) % mapSize
+    console.log('going to room ' + x + ' ' + y)
     /// should probably broadcast change in pos to this room TODO
-    charPos = [x*roomSize+(roomSize-1)/2, y*roomSize+(roomSize-1)/2]
+    let newPos = [x*roomSize+(roomSize-1)/2, y*roomSize+(roomSize-1)/2]
+    sendPos(getRoom(charPos), newPos)
+    charPos = newPos
     refreshMap()
     sendPos(getRoom(charPos), charPos)
   })
