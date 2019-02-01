@@ -2,19 +2,17 @@
 
 /*
 TODO:
+- more colors
 - confirm IPFS node isn't doing a lot of stuff
-- name/website?
+- reduce network traffic
+  - ?
+- names with cursors
+- minimap
 - security:
   - prevent illeagal timestamps
   - prevent illeagal updates (setting whole screen black)
-- show room and allow people to jump between rooms
-  - still need to hash arbitrary strings to room ids
+- name/website?
 - left column off-by-one error (not any other side...)
-- minimap
-- more colors
-- names with cursors
-- reduce network traffic
-  - ?
 */
 
 const $ = require('jquery')
