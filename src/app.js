@@ -8,6 +8,7 @@ TODO:
 
 const $ = require('jquery')
 require('events').EventEmitter.defaultMaxListeners = 100;
+const Base58 = require('base58')
 
 const IPFS = require('ipfs')
 const Room = require('ipfs-pubsub-room')
@@ -58,7 +59,7 @@ map does not wrap around
 */
 
 const generateStartPos = function() {
-  return (Math.floor(mapSize/2) - 2) * roomSize + Math.floor(Math.random() * 5 * roomSize)
+  return (Math.floor(mapSize/2) - 2) * roomSize + Math.floor(Math.random() * 5) * roomSize + Math.floor(roomSize / 2)
 }
 
 var charPos = [generateStartPos(), generateStartPos()]; // always in the center of the room
@@ -94,17 +95,25 @@ var updateBtn = function(r, c, valreg) {
   }
 }
 
-var showPeer = function(pos) {
+var showPeer = function(pos, peer) {
   let peerrc = posToRC(pos);
   if (!(peerrc === undefined)){
-    $('#r' + peerrc[0] + ' #c' + peerrc[1] + '').addClass('peer')
+    if (peerrc[0] == Math.floor(roomSize/2) && peerrc[1] == Math.floor(roomSize/2)) {
+      return
+    }
+    $('#r' + peerrc[0] + ' #c' + peerrc[1] + '').addClass('player')
+    $('#r' + peerrc[0] + ' #c' + peerrc[1] + '').css('background-color', colorForPeer(peer))
   }
 }
 
 var unshowPeer = function(pos) {
   let peerrc = posToRC(pos);
   if (!(peerrc === undefined)){
-    $('#r' + peerrc[0] + ' #c' + peerrc[1] + '').removeClass('peer')
+    if (peerrc[0] == Math.floor(roomSize/2) && peerrc[1] == Math.floor(roomSize/2)) {
+      return
+    }
+    $('#r' + peerrc[0] + ' #c' + peerrc[1] + '').removeClass('player')
+    $('#r' + peerrc[0] + ' #c' + peerrc[1] + '').css('background-color', 'white')
   }
 }
 
@@ -123,6 +132,11 @@ var getRoomID = function(pos){
     return undefined
   }
   return 'ddocs-' + Math.floor(pos[0]/roomSize) + '-' + Math.floor(pos[1]/roomSize)
+}
+
+var colorForPeer = function(peer){
+  const val = Base58.base58_to_int(peer.substring(10, 15))
+  return '#' + (val % 0x1000000).toString(16)
 }
 
 // sets up a new room and CRDT
@@ -159,7 +173,7 @@ var setupRoom = function(pos) {
     peerList[roomID].sort()
     // update pos
     peers[peer] = [0,0]
-    showPeer(peers[peer])
+    showPeer(peers[peer], peer)
     //send room
     const me = peerList[roomID].indexOf(info.id)
     const you = peerList[roomID].indexOf(peer)
@@ -224,7 +238,7 @@ var setupRoom = function(pos) {
     } else if (mess['type'] === 'pos') {
       unshowPeer(peers[message.from])
       peers[message.from] = [mess['p0'], mess['p1']]
-      showPeer(peers[message.from])
+      showPeer(peers[message.from], message.from)
     }
   })
 
@@ -275,10 +289,11 @@ var refreshMap = function() {
   }
   for (let key in peers) {
     if (peers.hasOwnProperty(key)) {
-      showPeer(peers[key])
+      showPeer(peers[key], key)
     }
   }
-  $('#coords').text('(' + charPos[1] + ', ' + charPos[0] + ')')
+  const c = Math.floor(mapSize * roomSize / 2)
+  $('#coords').text('(' + (charPos[1]-c) + ', ' + (charPos[0]-c) + ')')
 }
 
 // IPFS node is ready, so we can start using ipfs-pubsub-room
@@ -295,6 +310,7 @@ ipfs.once('ready', () => ipfs.id((err, infoArg) => {
     }
   }
   $('#r' + (roomSize-1)/2 + ' #c' + (roomSize-1)/2 + '').addClass('player')
+  $('#r' + (roomSize-1)/2 + ' #c' + (roomSize-1)/2 + '').css('background-color', colorForPeer(info.id))
 
   refreshMap()
   sendPos(getRoom(charPos), charPos)
