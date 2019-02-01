@@ -2,8 +2,10 @@
 
 /*
 TODO:
-- left column off-by-one error (not any other side...)
 - show room and allow people to jump between rooms
+  - still need to hash arbitrary strings to room ids
+- left column off-by-one error (not any other side...)
+
 */
 
 const $ = require('jquery')
@@ -132,7 +134,7 @@ var getRoomID = function(pos){
   if (pos[0] < 0 || pos[1] < 1 || pos[0] >= mapSize*roomSize || pos[1] >= mapSize*roomSize) {
     return undefined
   }
-  return 'ddocs-' + Math.floor(pos[0]/roomSize) + '-' + Math.floor(pos[1]/roomSize)
+  return 'rsp-' + Math.floor(pos[0]/roomSize) + '-' + Math.floor(pos[1]/roomSize)
 }
 
 var colorForPeer = function(peer){
@@ -146,7 +148,6 @@ var setupRoom = function(pos) {
   console.log('setting up new room! ' + roomID)
   // roompos is top left
   let roompos = [Math.floor(pos[0]/roomSize) * roomSize, Math.floor(pos[1]/roomSize) * roomSize]
-  console.log('starting roompos: ' + roompos)
   let room = Room(ipfs, roomID, {pollInterval: 5000})
 
   // now started to listen to room
@@ -180,20 +181,20 @@ var setupRoom = function(pos) {
     const you = peerList[roomID].indexOf(peer)
     const nPeers = peerList[roomID].length
     if ((you > me && you <= me + 3)
-	|| (you + nPeers > me && you + nPeers <= me + 3)) {
+        || (you + nPeers > me && you + nPeers <= me + 3)) {
       console.log("sending info to " + peer);
       let delay = 0
       for(let i=0; i<roomSize; i++) {
-	for(let j=0; j<roomSize; j++) {
-	  if (valArrs[roomID][i][j].state()[0] > 0) {
+      	for(let j=0; j<roomSize; j++) {
+          // no need to send null tiles...
+      	  if (valArrs[roomID][i][j].state()[0] > 0) {
             let rawCRDT = codec.encode({type: 'delta', i: i, j: j, delta:valArrs[roomID][i][j].state()})
             window.setTimeout(() => {
               room.sendTo(peer, rawCRDT)
             }, delay)
-	    delay += 25
-	  } else {
-	  }
-	}
+      	    delay += 25
+      	  }
+      	}
       }
     }
     // send pos
@@ -216,9 +217,6 @@ var setupRoom = function(pos) {
   })
 
   room.on('message', async (message) => {
-    //console.log('room: ' + roomID + ' message: ')
-    //console.log(message)
-    //console.log('roompos: ' + roompos)
     if (message.from === info.id){
       // it's from us. ignore it
       return;
@@ -228,16 +226,15 @@ var setupRoom = function(pos) {
       let i = mess['i']
       let j = mess['j']
       let delta = mess['delta']
-      //console.log('valArrs')
-      //console.log(valArrs)
-      //console.log('roomID ' + roomID)
       valArrs[roomID][i][j].apply(delta)
       let rc = posToRC([roompos[0] + i, roompos[1] + j])
       if (rc !== undefined) {
         updateBtn(rc[0], rc[1], valArrs[roomID][i][j])
       }
     } else if (mess['type'] === 'pos') {
-      unshowPeer(peers[message.from])
+      if (message.from in peers){
+        unshowPeer(peers[message.from])
+      }
       peers[message.from] = [mess['p0'], mess['p1']]
       showPeer(peers[message.from], message.from)
     }
@@ -315,7 +312,6 @@ ipfs.once('ready', () => ipfs.id((err, infoArg) => {
 
   $("button#go-btn").click(function () {
     let inp = $('#room-input').val();
-    console.log(inp)
     let y = parseInt(inp.substring(1+inp.lastIndexOf('-')))
     inp = inp.substring(0, inp.lastIndexOf('-'))
     let x = parseInt(inp.substring(1+inp.lastIndexOf('-')))
