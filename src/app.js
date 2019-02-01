@@ -56,7 +56,12 @@ r , c refer to row and column of the actual displayed grid
 map does not wrap around
 
 */
-var charPos = [roomSize + (roomSize-1)/2, roomSize + (roomSize-1)/2]; // always in the center of the room
+
+const generateStartPos = function() {
+  return (Math.floor(mapSize/2) - 2) * roomSize + Math.floor(Math.random() * 5 * roomSize)
+}
+
+var charPos = [generateStartPos(), generateStartPos()]; // always in the center of the room
 
 var peers = {};
 var peerList = {};
@@ -273,6 +278,7 @@ var refreshMap = function() {
       showPeer(peers[key])
     }
   }
+  $('#coords').text('(' + charPos[1] + ', ' + charPos[0] + ')')
 }
 
 // IPFS node is ready, so we can start using ipfs-pubsub-room
