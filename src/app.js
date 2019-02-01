@@ -1,5 +1,11 @@
 'use strict';
 
+/*
+TODO:
+- left column off-by-one error (not any other side...)
+- show room and allow people to jump between rooms
+*/
+
 const $ = require('jquery')
 require('events').EventEmitter.defaultMaxListeners = 100;
 
