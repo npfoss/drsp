@@ -322,6 +322,7 @@ ipfs.once('ready', () => ipfs.id((err, infoArg) => {
     /// should probably broadcast change in pos to this room TODO
     charPos = [x*roomSize+(roomSize-1)/2, y*roomSize+(roomSize-1)/2]
     refreshMap()
+    sendPos(getRoom(charPos), charPos)
   })
 
   refreshMap()
