@@ -45,6 +45,7 @@ const roomSize = 9; // always odd so player can be in center
 const mapSize = 255; // number of rooms per side (all in a grid)
 // pos [0,0] is at the top left of the top left map tile,
 //  [roomSize*mapSize-1, roomSize*mapSize-1] is the bottom right
+const center = Math.floor(mapSize * roomSize / 2)
 
 /***** A note about postition notation *****
 
@@ -62,7 +63,7 @@ const generateStartPos = function() {
   return (Math.floor(mapSize/2) - 2) * roomSize + Math.floor(Math.random() * 5) * roomSize + Math.floor(roomSize / 2)
 }
 
-var charPos = [generateStartPos(), generateStartPos()]; // always in the center of the room
+var charPos = [generateStartPos(), generateStartPos()];
 
 var peers = {};
 var peerList = {};
@@ -293,8 +294,7 @@ var refreshMap = function() {
     }
   }
   $('#room-input').val(getRoomID(charPos));
-  const c = Math.floor(mapSize * roomSize / 2)
-  $('#coords').text('(' + (charPos[1]-c) + ', ' + (charPos[0]-c) + ')')
+  $('#coords').text('(' + (charPos[1]-center) + ', ' + (charPos[0]-center) + ')')
 }
 
 // IPFS node is ready, so we can start using ipfs-pubsub-room
