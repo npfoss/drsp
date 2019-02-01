@@ -47,18 +47,18 @@ input {
 
 .player {
     padding: 3px;
-    background-color: green;
+    /*background-color: #00FF00;*/
 }
 
 .player button {
     padding: 0px;
 }
 
-.peer {
+/*.peer {
     padding: 3px;
-    background-color: red;
+    background-color: #FF0000;
 }
 
 .peer button {
     padding: 0px;
-}
+}*/
