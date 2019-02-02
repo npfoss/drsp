@@ -62,7 +62,7 @@ var ipfs = new IPFS({
 })
 var info = undefined; // will be defined as soon as ipfs connects
 
-const roomSize = 9; // always odd so player can be in center
+const roomSize = 25; // always odd so player can be in center
 // number of tiles per side of a room
 const mapSize = 255; // number of rooms per side (all in a grid)
 // pos [0,0] is at the top left of the top left map tile,
@@ -372,7 +372,7 @@ ipfs.once('ready', () => ipfs.id((err, infoArg) => {
   refreshMap()
   sendPos(getRoom(charPos), charPos)
 
-  document.getElementById("body").onkeypress = function(e) {
+  document.getElementById("canvas").onkeypress = function(e) {
     let prevroom = getRoom(charPos)
     if (e['key'] == ' ') {
       // assumes roomSize <= 10
