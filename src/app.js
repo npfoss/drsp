@@ -338,7 +338,7 @@ var refreshMap = function() {
       }
     }
   }
-  $('#coords').text('(' + (charPos[1]-center) + ', ' + (charPos[0]-center) + ')')
+  $('#coords').text('(' + (charPos[1]-center) + ', ' + (center-charPos[0]) + ')')
 }
 
 var updateColorSelector = function() {
@@ -368,6 +368,7 @@ ipfs.once('ready', () => ipfs.id((err, infoArg) => {
       $('#r' + i).append('<td id="c' + j + '"><button/></td>')
     }
   }
+
   const playerDesc = '#r' + (roomSize-1)/2 + ' #c' + (roomSize-1)/2 + ''
   $(playerDesc).addClass('player')
   $(playerDesc).css('background-color', colorForPeer(info.id))
