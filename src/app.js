@@ -328,8 +328,11 @@ ipfs.once('ready', () => ipfs.id((err, infoArg) => {
       $('#r' + i).append('<td id="c' + j + '"><button/></td>')
     }
   }
-  $('#r' + (roomSize-1)/2 + ' #c' + (roomSize-1)/2 + '').addClass('player')
-  $('#r' + (roomSize-1)/2 + ' #c' + (roomSize-1)/2 + '').css('background-color', colorForPeer(info.id))
+  const playerDesc = '#r' + (roomSize-1)/2 + ' #c' + (roomSize-1)/2 + ''
+  $(playerDesc).addClass('player')
+  $(playerDesc).css('background-color', colorForPeer(info.id))
+  $(playerDesc).append('<div id="name">MMMM</div>')
+  $(playerDesc + ' #name').css('background-color', colorForPeer(info.id))
 
   $("button#go-btn").click(function () {
     let inp = $('#room-input').val();

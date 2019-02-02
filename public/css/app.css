@@ -36,8 +36,6 @@ button:focus {
 
 #go-btn {
     font-size: 0.8em;
-    /*height: 100%;*/
-    /*width: 3em;*/
 }
 
 input {
@@ -46,19 +44,20 @@ input {
 }
 
 .player {
+    position: relative;
     padding: 3px;
-    /*background-color: #00FF00;*/
 }
 
 .player button {
     padding: 0px;
 }
 
-/*.peer {
-    padding: 3px;
-    background-color: #FF0000;
+.player #name {
+    position: absolute;
+    top: 8.3vh;
+    right: 0;
+    font-size: 8pt;
+    padding: 2px;
+    border-radius: 5px;
+    z-index: 1;
 }
-
-.peer button {
-    padding: 0px;
-}*/
