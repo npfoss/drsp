@@ -16,7 +16,7 @@ table {
     height: calc(75vw + 75vh);
     width: calc(75vw + 75vh);
     margin: auto;
-    border: 1px solid gray;
+    border: 1px solid #EEE;
     border-collapse: collapse;
     position: absolute;
     top: -9999px;
@@ -27,7 +27,7 @@ table {
 }
 
 td {
-    border: 1px solid gray;
+    border: none;
 }
 
 table button {
@@ -35,7 +35,7 @@ table button {
     height: 100%;
     width: 100%;
     padding: 3px;
-    border: none;
+    border: 1px solid rgba(200, 200, 200, 20%);
 }
 
 button:focus {
@@ -49,7 +49,7 @@ div#room-info {
     padding: 5px;
     border-radius: 5px;
     font-size: 12pt;
-    background-color: #EEEEEE;
+    background-color: #EEE;
     z-index: 2;
 }
 
@@ -69,7 +69,7 @@ input {
     padding: 5px;
     border-radius: 5px;
     font-size: 12pt;
-    background-color: #EEEEEE;
+    background-color: #EEE;
     z-index: 2;
 }
 
@@ -84,7 +84,7 @@ input {
 
 .player #name {
     position: absolute;
-    top: calc(3vw + 3vh - 3px);
+    top: calc(3vw + 3vh - 2px);
     right: 0;
     font-size: 10pt;
     padding: 2px;
