@@ -123,8 +123,11 @@ var showPeer = function(pos, peer) {
     if (peerrc[0] == Math.floor(roomSize/2) && peerrc[1] == Math.floor(roomSize/2)) {
       return
     }
-    $('#r' + peerrc[0] + ' #c' + peerrc[1] + '').addClass('player')
-    $('#r' + peerrc[0] + ' #c' + peerrc[1] + '').css('background-color', colorForPeer(peer))
+    const playerDesc = '#r' + peerrc[0] + ' #c' + peerrc[1] + ''
+    $(playerDesc).addClass('player')
+    $(playerDesc).css('background-color', colorForPeer(peer))
+    $(playerDesc).append('<div id="name">MMMM</div>')
+    $(playerDesc + ' #name').css('background-color', colorForPeer(peer))
   }
 }
 
@@ -134,8 +137,10 @@ var unshowPeer = function(pos) {
     if (peerrc[0] == Math.floor(roomSize/2) && peerrc[1] == Math.floor(roomSize/2)) {
       return
     }
-    $('#r' + peerrc[0] + ' #c' + peerrc[1] + '').removeClass('player')
-    $('#r' + peerrc[0] + ' #c' + peerrc[1] + '').css('background-color', 'white')
+    const playerDesc = '#r' + peerrc[0] + ' #c' + peerrc[1] + ''
+    $(playerDesc).removeClass('player')
+    $(playerDesc).css('background-color', 'white')
+    $(playerDesc + ' #name').remove()
   }
 }
 
