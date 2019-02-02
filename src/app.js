@@ -164,14 +164,13 @@ var getRoomID = function(pos){
 
 var colorForPeer = function(peer){
   const val = Base58.base58_to_int(peer.substring(10, 15))
-  return '#' + (val % 0x1000000).toString(16)
+  const hue = val % 360
+  const lightness = 60 + val % 25
+  return 'hsl(' + hue + ', 100%, ' + lightness + '%)'
 }
 
 var nameForPeer = function(peer){
   const val = Base58.base58_to_int(peer.substring(15, 20))
-  console.log(names)
-  console.log(names.length)
-  console.log(val % names.length)
   return names[val % names.length]
 }
 
