@@ -25,6 +25,7 @@ const RegType = CRDT('lwwreg')
 const codec = require('delta-crdts-msgpack-codec')
 
 const names = require('./names')
+const colors = require('./colors')
 
 String.prototype.hashCode = function() {
   var hash = 0, i, chr;
@@ -93,6 +94,9 @@ var peerList = {};
 var rooms = {};
 var valArrs = {};
 
+// Currently selected color, initialize to black
+var curColor = 1;
+
 var posToRC = function(pos) {
   // matters because always at the center
   let r = pos[0] - charPos[0] + (roomSize-1)/2
@@ -111,10 +115,13 @@ var rcToPos = function(r, c) {
 
 var updateBtn = function(r, c, valreg) {
   // $('#btn').text(valreg.value())
-  if (valreg === undefined || valreg === null){
-    $('#r' + r + ' #c' + c + ' button').css('background-color', 'gray')
+  const desc = '#r' + r + ' #c' + c + ' button'
+  if (valreg == null) {
+    $(desc).css('background-color', 'gray')
+  } else if (valreg.value() == null) {
+    $(desc).css('background-color', 'white')
   } else {
-    $('#r' + r + ' #c' + c + ' button').css('background-color', (valreg.value() === 1) ? 'black' : 'white')
+    $(desc).css('background-color', colors[valreg.value()])
   }
 }
 
@@ -334,6 +341,20 @@ var refreshMap = function() {
   $('#coords').text('(' + (charPos[1]-center) + ', ' + (charPos[0]-center) + ')')
 }
 
+var updateColorSelector = function() {
+  $('#colorList').children().each((i, el) => {
+    if (i === curColor) {
+      if (!$(el).hasClass('selected')) {
+	$(el).addClass('selected')
+      }
+    } else {
+      if ($(el).hasClass('selected')) {
+	$(el).removeClass('selected')
+      }
+    }
+  })
+}
+
 // IPFS node is ready, so we can start using ipfs-pubsub-room
 ipfs.once('ready', () => ipfs.id((err, infoArg) => {
   if (err) { throw err }
@@ -369,6 +390,11 @@ ipfs.once('ready', () => ipfs.id((err, infoArg) => {
   // so you don't click the button every time you hit space now
   $('button#go-btn').mouseup(function() { this.blur() })
 
+  for (let color of colors) {
+    $("#colorList").append('<span style="background-color: ' + color + '"></span>')
+  }
+  updateColorSelector()
+
   refreshMap()
   sendPos(getRoom(charPos), charPos)
 
@@ -385,13 +411,16 @@ ipfs.once('ready', () => ipfs.id((err, infoArg) => {
       let room = getRoom(pos)
       let ij = posToIJ(pos)
       let val = valArrs[roomID][ij[0]][ij[1]]
-      let delta = val.write((new Date).getTime(), (val.value() == null) ? 1 : (1 - val.value()))
+      let delta = val.write((new Date).getTime(), curColor)
       let rc = posToRC(pos)
       updateBtn(rc[0], rc[1], val)
       let rawDelta = codec.encode({type: 'delta', i: ij[0], j: ij[1], delta: delta})
       room.broadcast(rawDelta)
       return
-    }
+    } else if (!isNaN(e['key']) && (+e['key']) < colors.length) {
+      curColor = +e['key']
+      updateColorSelector()
+    }  
     if (e['key'] == 'w'){
       charPos[0] -= 1;
     } else if (e['key'] == 's'){
