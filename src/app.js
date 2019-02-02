@@ -267,11 +267,12 @@ var setupRoom = function(pos) {
         updateBtn(rc[0], rc[1], valArrs[roomID][i][j])
       }
     } else if (mess['type'] === 'pos') {
-      if (message.from in peers){
-        unshowPeer(peers[message.from])
-      }
       peers[message.from] = [mess['p0'], mess['p1']]
-      showPeer(peers[message.from], message.from)
+      // if (message.from in peers){
+      //   unshowPeer(peers[message.from])
+      // }
+      // showPeer(peers[message.from], message.from)
+      refreshMap()
     }
   })
 
@@ -320,9 +321,14 @@ var refreshMap = function() {
       }
     }
   }
+  const locsDrawn = {}
   for (let key in peers) {
     if (peers.hasOwnProperty(key)) {
-      showPeer(peers[key], key)
+      const loc = peers[key]
+      if (locsDrawn[loc] == undefined) {
+	showPeer(peers[key], key)
+	locsDrawn[loc] = true
+      }
     }
   }
   $('#coords').text('(' + (charPos[1]-center) + ', ' + (charPos[0]-center) + ')')
