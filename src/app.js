@@ -6,7 +6,6 @@ TODO:
 - confirm IPFS node isn't doing a lot of stuff
 - reduce network traffic
   - ?
-- names with cursors
 - minimap
 - security:
   - prevent illeagal timestamps
