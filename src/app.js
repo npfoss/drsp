@@ -52,7 +52,8 @@ var ipfs = new IPFS({
         // '/dns4/ws-star.discovery.libp2p.io/tcp/443/wss/p2p-websocket-star',
         // '/dns4/wrtc-star.discovery.libp2p.io/tcp/443/wss/p2p-webrtc-star',
         // "/dns4/star-signal.cloud.ipfs.team/tcp/443/wss/p2p-webrtc-star",
-        '/ip4/18.96.5.117/tcp/9090/ws/p2p-websocket-star/',
+        //'/ip4/18.96.5.117/tcp/9090/ws/p2p-websocket-star/',
+	'/dns4/jb-odysseus.mit.edu/tcp/13579/wss/p2p-websocket-star/'
       ],
       API: '',
       Gateway: '',
