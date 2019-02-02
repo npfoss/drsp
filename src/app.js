@@ -390,6 +390,7 @@ ipfs.once('ready', () => ipfs.id((err, infoArg) => {
   // so you don't click the button every time you hit space now
   $('button#go-btn').mouseup(function() { this.blur() })
 
+  $("#numColors").text(colors.length-1)
   for (let color of colors) {
     $("#colorList").append('<span style="background-color: ' + color + '"></span>')
   }
