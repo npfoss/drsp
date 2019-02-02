@@ -13,8 +13,8 @@ body {
 }
 
 table {
-    height: 200vh;
-    width: 200vh;
+    height: calc(75vw + 75vh);
+    width: calc(75vw + 75vh);
     margin: auto;
     border: 1px solid gray;
     border-collapse: collapse;
@@ -84,10 +84,10 @@ input {
 
 .player #name {
     position: absolute;
-    top: 8.3vh;
+    top: calc(3vw + 3vh - 2px);
     right: 0;
     font-size: 10pt;
     padding: 2px;
-    border-radius: 5px;
+    border-radius: 2px;
     z-index: 1;
 }
