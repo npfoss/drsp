@@ -377,7 +377,7 @@ ipfs.once('ready', () => ipfs.id((err, infoArg) => {
 
   $("button#go-btn").click(function () {
     let inp = $('#room-input').val();
-    let h = inp.hashCode()
+    let h = Math.abs(inp.hashCode())
     let y = h % mapSize
     let x = Math.ceil(h / mapSize) % mapSize
     console.log('going to room ' + x + ' ' + y)
