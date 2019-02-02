@@ -2,7 +2,6 @@
 
 /*
 TODO:
-- more colors
 - confirm IPFS node isn't doing a lot of stuff
 - reduce network traffic
   - ?
