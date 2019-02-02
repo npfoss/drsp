@@ -84,7 +84,7 @@ input {
 
 .player #name {
     position: absolute;
-    top: calc(3vw + 3vh - 2px);
+    top: calc(3vw + 3vh - 3px);
     right: 0;
     font-size: 10pt;
     padding: 2px;
