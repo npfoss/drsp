@@ -29,9 +29,7 @@ var ipfs = new IPFS({
   config: {
     Addresses: {
       Swarm: [
-        '/dns4/ws-star.discovery.libp2p.io/tcp/443/wss/p2p-websocket-star',
-        '/dns4/wrtc-star.discovery.libp2p.io/tcp/443/wss/p2p-webrtc-star',
-        "/dns4/star-signal.cloud.ipfs.team/tcp/443/wss/p2p-webrtc-star",
+	'/dns4/jb-odysseus.mit.edu/tcp/13579/wss/p2p-websocket-star/'
       ],
       API: '',
       Gateway: '',
@@ -40,7 +38,7 @@ var ipfs = new IPFS({
 })
 var info = undefined; // will be defined as soon as ipfs connects
 
-const roomSize = 9; // always odd so player can be in center
+const roomSize = 25; // always odd so player can be in center
 // number of tiles per side of a room
 const mapSize = 255; // number of rooms per side (all in a grid)
 // pos [0,0] is at the top left of the top left map tile,
@@ -131,7 +129,7 @@ var getRoomID = function(pos){
   if (pos[0] < 0 || pos[1] < 1 || pos[0] >= mapSize*roomSize || pos[1] >= mapSize*roomSize) {
     return undefined
   }
-  return 'ddocs-' + Math.floor(pos[0]/roomSize) + '-' + Math.floor(pos[1]/roomSize)
+  return 'final-pre-demo-' + Math.floor(pos[0]/roomSize) + '-' + Math.floor(pos[1]/roomSize)
 }
 
 var colorForPeer = function(peer){
