@@ -26,6 +26,8 @@ const CRDT = require('delta-crdts')
 const RegType = CRDT('lwwreg')
 const codec = require('delta-crdts-msgpack-codec')
 
+const names = require('./names')
+
 String.prototype.hashCode = function() {
   var hash = 0, i, chr;
   if (this.length === 0) return hash;
@@ -126,7 +128,7 @@ var showPeer = function(pos, peer) {
     const playerDesc = '#r' + peerrc[0] + ' #c' + peerrc[1] + ''
     $(playerDesc).addClass('player')
     $(playerDesc).css('background-color', colorForPeer(peer))
-    $(playerDesc).append('<div id="name">MMMM</div>')
+    $(playerDesc).append('<div id="name">' + nameForPeer(peer) + '</div>')
     $(playerDesc + ' #name').css('background-color', colorForPeer(peer))
   }
 }
@@ -164,6 +166,14 @@ var getRoomID = function(pos){
 var colorForPeer = function(peer){
   const val = Base58.base58_to_int(peer.substring(10, 15))
   return '#' + (val % 0x1000000).toString(16)
+}
+
+var nameForPeer = function(peer){
+  const val = Base58.base58_to_int(peer.substring(15, 20))
+  console.log(names)
+  console.log(names.length)
+  console.log(val % names.length)
+  return names[val % names.length]
 }
 
 // sets up a new room and CRDT
@@ -336,7 +346,7 @@ ipfs.once('ready', () => ipfs.id((err, infoArg) => {
   const playerDesc = '#r' + (roomSize-1)/2 + ' #c' + (roomSize-1)/2 + ''
   $(playerDesc).addClass('player')
   $(playerDesc).css('background-color', colorForPeer(info.id))
-  $(playerDesc).append('<div id="name">MMMM</div>')
+  $(playerDesc).append('<div id="name">' + nameForPeer(info.id) + '</div>')
   $(playerDesc + ' #name').css('background-color', colorForPeer(info.id))
 
   $("button#go-btn").click(function () {
