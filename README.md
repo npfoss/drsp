@@ -1,4 +1,4 @@
-# ddocs
+# DRSP
 A decentralized real-time multiplayer game built on IPFS, libp2p, and delta-crdt
 
 ## installation
