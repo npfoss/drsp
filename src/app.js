@@ -3,6 +3,7 @@
 /*
 TODO:
 urget, pre-launch:
+- make it work on Safari and Firefox too
 - focus is wrong on page load (can't move without clicking)
 - add hacklodge link on main page too
 - make about page not ugly
