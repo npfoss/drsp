@@ -2,15 +2,20 @@
 
 /*
 TODO:
+urget, pre-launch:
+- focus is wrong on page load (can't move without clicking)
+- add hacklodge link on main page too
+- make about page not ugly
+- add semi-transparent overlay on page load that tells the controls, disappear on first legal keypress
+- name/website?
+
+other:
 - confirm IPFS node isn't doing a lot of stuff
-- reduce network traffic
-  - ?
-- minimap
 - security:
   - prevent illeagal timestamps
   - prevent illeagal updates (setting whole screen black)
-- name/website?
 - left column off-by-one error (not any other side...)
+- minimap
 */
 
 const $ = require('jquery')
