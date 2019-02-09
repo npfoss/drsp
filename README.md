@@ -1,4 +1,4 @@
-# DRSP
+# [DRSP](http://npfoss.com/drsp)
 DRSP, which stands for decentralized [r/place](https://www.reddit.com/r/place/top/?t=all) (our inspiration), is a real-time massive multiplayer decentralized persistent virtual world.
 
 There is no central server behind this game.

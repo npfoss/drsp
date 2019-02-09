@@ -5,8 +5,7 @@ TODO:
 urget, pre-launch:
 - make it work on Safari and Firefox too
 - add semi-transparent overlay on page load that tells the controls, disappear on first legal keypress
-- name/website?
-- local storage?
+- local storage
 - security:
   - prevent illeagal timestamps
 
