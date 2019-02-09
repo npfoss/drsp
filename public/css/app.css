@@ -49,7 +49,7 @@ table button {
     left: 5px;
     padding: 5px;
     border-radius: 5px;
-    font-size: 36pt;
+    font-size: 2em;
     background-color: #EEE;
     z-index: 2;
 }
@@ -64,7 +64,7 @@ div#room-info {
     right: 5px;
     padding: 5px;
     border-radius: 5px;
-    font-size: 12pt;
+    font-size: 0.5em;
     background-color: #EEE;
     z-index: 2;
 }
@@ -84,7 +84,7 @@ input {
     right: 5px;
     padding: 5px;
     border-radius: 5px;
-    font-size: 12pt;
+    font-size: 1em;
     background-color: #EEE;
     z-index: 2;
 }
@@ -95,7 +95,7 @@ input {
     left: 5px;
     padding: 5px;
     border-radius: 5px;
-    font-size: 12pt;
+    font-size: 0.5em;
     background-color: #EEE;
     z-index: 2;
 }
