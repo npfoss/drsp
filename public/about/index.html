@@ -6,18 +6,33 @@
     <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Roboto"/>
   </head>
   <body id="body">
-    <a href="../"><h1>DRSP</h1></a>
-    <p>
-      DRSP, which stands for decentralized r/place (our inspiration), is a decentralized, completely peer-to-peer, persistent virtual world.
-      It's built with <a href="https://ipfs.io/">IPFS</a> <a href="https://github.com/ipfs-shipyard/ipfs-pubsub-room">pubsub room</a> and <a href="https://github.com/ipfs-shipyard/js-delta-crdts">delta-crdts</a>.
-      CRDTs are Confilct-free Replicated Data Types, and are the reason everyone on DRSP ends up with the same world-state no matter what order updates are recieved in.
-    </p>
-    <h2>Built by:</h2>
-    <list>
-      <li><a href="http://npfoss.com/">Nate Foss</a></li>
-      <li>Jamie Bloxham</li>
-    </list>
-    <p>At the Boston winter <a href="https://hacklodge.org/">Hack Lodge</a> 2019.</p>
-    <p>Source code: <a href="https://github.com/npfoss/drsp">GitHub</a></p>
+    <div id="background">
+      <div class="card">
+        <a href="../"><h1>DRSP</h1></a>
+        <p>
+          DRSP, which stands for decentralized <a href="https://www.reddit.com/r/place/top/?t=all">r/place</a> (our inspiration), is a massive, multiplayer, decentralized, completely peer-to-peer, persistent virtual world.
+        </p>
+        <p>
+          There is no central server behind this game.
+          You dynamically load small chunks of a gigantic map as you move around,
+          and sync updates about the world state only with the othe people in those chunks.
+        </p>
+        <p>
+          It's built with <a href="https://ipfs.io/">IPFS</a> <a href="https://github.com/ipfs-shipyard/ipfs-pubsub-room">pubsub room</a> and <a href="https://github.com/ipfs-shipyard/js-delta-crdts">delta-crdts</a>.
+          CRDTs are Confilct-free Replicated Data Types, and are the reason everyone on DRSP ends up with the same world-state no matter what order updates are recieved in.
+        </p>
+      </div>
+      <div class="card">
+        <h2>Built by:</h2>
+        <list>
+          <li><a href="http://npfoss.com/">Nate Foss</a></li>
+          <li>Jamie Bloxham</li>
+        </list>
+        <p>At the Boston winter <a href="https://hacklodge.org/">Hack Lodge</a> 2019.</p>
+      </div>
+      <div class="card">
+        <p>Source code: <a href="https://github.com/npfoss/drsp">GitHub</a></p>
+      </div>
+    </div>
   </body>
 </html>

@@ -5,7 +5,6 @@ TODO:
 urget, pre-launch:
 - make it work on Safari and Firefox too
 - add hacklodge link on main page too
-- make about page not ugly
 - add semi-transparent overlay on page load that tells the controls, disappear on first legal keypress
 - name/website?
 - local storage?
