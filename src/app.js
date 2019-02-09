@@ -4,16 +4,16 @@
 TODO:
 urget, pre-launch:
 - make it work on Safari and Firefox too
-- add hacklodge link on main page too
 - add semi-transparent overlay on page load that tells the controls, disappear on first legal keypress
 - name/website?
 - local storage?
-
-other:
-- confirm IPFS node isn't doing a lot of stuff
 - security:
   - prevent illeagal timestamps
+
+other:
+security:
   - prevent illeagal updates (setting whole screen black)
+- confirm IPFS node isn't doing a lot of stuff
 - left column off-by-one error (not any other side...)
 - minimap
 */
