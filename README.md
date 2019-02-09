@@ -1,5 +1,5 @@
 # DRSP
-DRSP, which stands for decentralized [r/place](https://www.reddit.com/r/place/top/?t=all) (our inspiration), is a real-time, massive, multiplayer, decentralized, completely peer-to-peer, persistent virtual world.
+DRSP, which stands for decentralized [r/place](https://www.reddit.com/r/place/top/?t=all) (our inspiration), is a real-time massive multiplayer decentralized persistent virtual world.
 
 There is no central server behind this game.
 You dynamically load small chunks of a gigantic map as you move around,
