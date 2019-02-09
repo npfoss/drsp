@@ -4,11 +4,11 @@
 TODO:
 urget, pre-launch:
 - make it work on Safari and Firefox too
-- focus is wrong on page load (can't move without clicking)
 - add hacklodge link on main page too
 - make about page not ugly
 - add semi-transparent overlay on page load that tells the controls, disappear on first legal keypress
 - name/website?
+- local storage?
 
 other:
 - confirm IPFS node isn't doing a lot of stuff
@@ -406,7 +406,11 @@ ipfs.once('ready', () => ipfs.id((err, infoArg) => {
   refreshMap()
   sendPos(getRoom(charPos), charPos)
 
-  document.getElementById("canvas").onkeypress = function(e) {
+  document.onkeydown = function(e) {
+    if (e.repeat) {
+      // prevents holding down keys
+      return
+    }
     let prevroom = getRoom(charPos)
     if (e['key'] == ' ') {
       // assumes roomSize <= 10
