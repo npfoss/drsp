@@ -18,3 +18,24 @@ CRDTs are Confilct-free Replicated Data Types, and are the reason everyone on DR
 npm run compile
 npm run start
 ```
+
+## peering servers
+
+Unfortunately this does rely on peering servers to make the initial contact between two users.
+Here's an example setup of such a server:
+
+First, get nginx and docker (you can do it without docker too).
+
+You will also need https certs since Chrome won't let you use http websocket on https pages.
+
+To start the actual peering server run `sudo docker run -d -p 9090:9090 --name rendezvous libp2p/websocket-star-rendezvous:release`.
+
+To make it possible to use with https (a must), run nginx with an `nginx.conf` file like the one in [rendezvous](https://github.com/npfoss/drsp/tree/master/rendezvous).
+These commands may be useful:
+```bash
+sudo systemctl start nginx
+sudo systemctl status nginx
+sudo systemctl stop nginx
+```
+
+You should now be able to add a peering server to the list that looks something like `'/dns4/npfoss.mit.edu/tcp/13579/wss/p2p-websocket-star/'`!
