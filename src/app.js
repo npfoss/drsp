@@ -409,7 +409,9 @@ ipfs.once('ready', () => ipfs.id((err, infoArg) => {
       // prevents holding down keys
       return
     }
+    $("#welcome").hide();
     let prevroom = getRoom(charPos)
+
     if (e['key'] == ' ') {
       // assumes roomSize <= 10
       let pos = charPos
@@ -426,12 +428,15 @@ ipfs.once('ready', () => ipfs.id((err, infoArg) => {
       updateBtn(rc[0], rc[1], val)
       let rawDelta = codec.encode({type: 'delta', i: ij[0], j: ij[1], delta: delta})
       room.broadcast(rawDelta)
+      // no need to refresh map
       return
     } else if (!isNaN(e['key']) && (+e['key']) < colors.length) {
       curColor = +e['key']
       updateColorSelector()
-    }  
-    if (e['key'] == 'w'){
+    } 
+
+    // movement
+    else if (e['key'] == 'w'){
       charPos[0] -= 1;
     } else if (e['key'] == 's'){
       charPos[0] += 1;

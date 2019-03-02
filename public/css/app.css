@@ -131,3 +131,70 @@ input {
     border-radius: 2px;
     z-index: 1;
 }
+
+#welcome {
+    position: absolute;
+    left: 40%;
+    top: 33%;
+    width: 20%;
+    height: 34%;
+    z-index: 10;
+    background-color: rgba(80, 80, 80, 0.4);
+    border-radius: 5px;
+    padding: 1em;
+}
+
+#disclaimer {
+    padding: 0.4em;
+    margin: auto;
+    margin-top: 1em;
+    font-size: 0.5em;
+}
+
+#controls .key {
+    border: 2px solid black;
+    width: 2em;
+    height: 2em;
+    margin: 2%;
+    border-radius: 5px;
+}
+
+#controls .row {
+    margin: auto;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+}
+
+#controls .row div {
+    float: left;
+}
+
+.key p {
+    border: none;
+    margin: auto;
+    padding: 20% 20%;
+}
+
+#controls .key.alone {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.key#d {
+    margin-right: auto;
+}
+
+.key#a {
+    margin-left: auto;
+}
+
+.key#space {
+    width: 7em;
+    height: 2em;
+}
+
+#space p {
+    padding: 0;
+    padding-top: 0.4em;
+}
